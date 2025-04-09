@@ -42,7 +42,7 @@ import { AuthService } from "../../services/auth.service"
   `,
   styles: [`
     :host {
-      font-family: 'Courier New', monospace;
+      font-family: 'Courier Prime', monospace;
       display: block;
       height: 100vh;
       width: 100vw;
@@ -123,13 +123,13 @@ import { AuthService } from "../../services/auth.service"
       color: white;
       border: 1px solid white;
       box-sizing: border-box;
-      font-family: 'Courier New', monospace;
+      font-family: 'Courier Prime', monospace;
       font-size: 1rem;
     }
 
     .form-control::placeholder {
       color: rgba(255, 255, 255, 0.7);
-      font-family: 'Courier New', monospace;
+      font-family: 'Courier Prime', monospace;
     }
 
     .btn-submit {
@@ -139,7 +139,7 @@ import { AuthService } from "../../services/auth.service"
       color: white;
       border: 1px solid white;
       cursor: pointer;
-      font-family: 'Courier New', monospace;
+      font-family: 'Courier Prime', monospace;
       font-size: 1rem;
       align-self: flex-end;
     }
