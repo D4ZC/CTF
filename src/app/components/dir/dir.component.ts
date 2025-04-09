@@ -1,4 +1,4 @@
-import { Component, type OnInit } from "@angular/core"
+import { Component, type OnInit, AfterViewInit, ElementRef, ViewChild } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router, RouterModule } from "@angular/router"
@@ -10,36 +10,39 @@ import { AuthService } from "../../services/auth.service"
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="dir-container">
-      <header>
-        <h1>Flag-Hunters</h1>
-      </header>
-      <main>
-        <div class="levels-grid">
-          <div class="level-card" *ngFor="let level of levels">
-            <h2>Nivel {{ level.id }}</h2>
-            <div class="level-content">
-              <div *ngIf="level.unlocked">
-                <a [routerLink]="level.route">Ir a {{ level.name }}</a>
-              </div>
-              <div *ngIf="!level.unlocked">
-                <p>Nivel bloqueado</p>
+      <canvas #binaryCanvas class="binary-background"></canvas>
+      <div class="content-wrapper">
+        <header>
+          <h1>Flag-Hunters</h1>
+        </header>
+        <main>
+          <div class="levels-grid">
+            <div class="level-card" *ngFor="let level of levels">
+              <h2>Nivel {{ level.id }}</h2>
+              <div class="level-content">
+                <div *ngIf="level.unlocked">
+                  <a [routerLink]="level.route">Ir a {{ level.name }}</a>
+                </div>
+                <div *ngIf="!level.unlocked">
+                  <p>Nivel bloqueado</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div class="code-input">
-          <input 
-            type="text" 
-            [(ngModel)]="codeInput" 
-            placeholder="Ingresa el código de 10 dígitos" 
-            class="form-control"
-          />
-          <button (click)="validateCode()" class="btn-submit">Enviar</button>
-          <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-          <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
-        </div>
-      </main>
+          
+          <div class="code-input">
+            <input 
+              type="text" 
+              [(ngModel)]="codeInput" 
+              placeholder="Ingresa el código de 10 dígitos" 
+              class="form-control"
+            />
+            <button (click)="validateCode()" class="btn-submit">Enviar</button>
+            <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+            <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+          </div>
+        </main>
+      </div>
     </div>
   `,
   styles: [
@@ -49,11 +52,30 @@ import { AuthService } from "../../services/auth.service"
       display: block;
       height: 100vh;
       width: 100vw;
+      overflow: hidden;
     }
 
     .dir-container {
-      background-color: #0a2351; /* Navy blue background */
+      position: relative;
       height: 100%;
+      width: 100%;
+      background-color: black;
+    }
+
+    .binary-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      width: 100%;
       display: flex;
       flex-direction: column;
     }
@@ -61,99 +83,173 @@ import { AuthService } from "../../services/auth.service"
     header {
       height: 15%;
       width: 100%;
-      background-color: rgba(0, 0, 0, 0.75);
+      background-color: rgba(0, 0, 0, 0.6);
       display: flex;
       justify-content: center;
       align-items: center;
+      backdrop-filter: blur(5px);
     }
 
     h1 {
       color: white;
       margin: 0;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
     }
 
     main {
-      height: 85%;
+      flex: 1;
       width: 100%;
       padding: 2rem;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       gap: 2rem;
+      overflow-y: auto;
     }
 
     .levels-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, auto);
       gap: 1.5rem;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
     }
 
     .level-card {
-      background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid white;
+      background-color: rgba(0, 0, 0, 0.85);
+      border: 1px solid rgba(0, 255, 0, 0.3);
       padding: 1.5rem;
       color: white;
+      aspect-ratio: 16/9;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+    }
+
+    .level-card:hover {
+      transform: scale(1.02);
+      border-color: rgba(0, 255, 0, 0.6);
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    }
+
+    .level-card h2 {
+      font-size: 1.5rem;
+      margin: 0 0 1rem 0;
+      text-align: center;
+      color: #00ff00;
     }
 
     .level-content {
-      margin-top: 1rem;
+      text-align: center;
+      width: 100%;
     }
 
     a {
-      color: white;
+      color: #00ff00;
       text-decoration: none;
+      transition: color 0.3s ease;
     }
 
     a:hover {
-      text-decoration: underline;
+      color: #fff;
+      text-shadow: 0 0 5px #00ff00;
     }
 
     .code-input {
-      margin-top: auto;
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
+      background-color: rgba(0, 0, 0, 0.85);
+      padding: 1.5rem;
+      border-radius: 8px;
+      backdrop-filter: blur(5px);
     }
 
     .form-control {
       width: 100%;
       padding: 0.75rem;
       background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid white;
-      color: white;
+      border: 1px solid rgba(0, 255, 0, 0.3);
+      color: #00ff00;
       box-sizing: border-box;
+      font-family: 'Courier Prime', monospace;
     }
 
     .form-control::placeholder {
-      color: white;
-      font-family: 'Courier Prime', monospace;
+      color: rgba(0, 255, 0, 0.5);
     }
 
     .btn-submit {
       padding: 0.75rem;
       background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid white;
-      color: white;
+      border: 1px solid rgba(0, 255, 0, 0.3);
+      color: #00ff00;
       cursor: pointer;
       font-family: 'Courier Prime', monospace;
+      transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      background-color: rgba(0, 255, 0, 0.1);
+      border-color: rgba(0, 255, 0, 0.6);
     }
 
     .error-message {
-      color: red;
+      color: #ff4444;
       text-align: center;
     }
 
     .success-message {
-      color: green;
+      color: #00ff00;
       text-align: center;
     }
-  `,
+
+    @media (max-width: 1024px) {
+      .levels-grid {
+        gap: 1rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .levels-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, auto);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .levels-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(6, auto);
+      }
+      
+      main {
+        padding: 1rem;
+      }
+      
+      .code-input {
+        padding: 1rem;
+      }
+    }
+    `,
   ],
 })
-export class DirComponent implements OnInit {
+export class DirComponent implements OnInit, AfterViewInit {
+  @ViewChild('binaryCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+  private ctx!: CanvasRenderingContext2D;
+  private columns: number[] = [];
+  private fontSize = 14;
+
   levels = [
     { id: 1, name: "Inspect", route: "/inspect", unlocked: false },
     { id: 2, name: "Hexa", route: "/hexa", unlocked: false },
@@ -176,6 +272,66 @@ export class DirComponent implements OnInit {
   ngOnInit(): void {
     // Update unlocked levels
     this.updateUnlockedLevels()
+  }
+
+  ngAfterViewInit(): void {
+    this.initBinaryBackground();
+  }
+
+  private initBinaryBackground(): void {
+    const canvas = this.canvasRef.nativeElement;
+    this.ctx = canvas.getContext('2d')!;
+
+    // Set canvas size to match window size
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      this.columns = [];
+      const columns = canvas.width / this.fontSize;
+      for (let i = 0; i < columns; i++) {
+        this.columns[i] = 1;
+      }
+    };
+
+    // Initial setup
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Animation function
+    const drawBinary = () => {
+      // Add a semi-transparent black layer to create fade effect
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Set the color for the binary numbers
+      this.ctx.fillStyle = '#00ff00';
+      this.ctx.font = `${this.fontSize}px monospace`;
+
+      // Draw the binary numbers
+      for (let i = 0; i < this.columns.length; i++) {
+        const text = Math.random() < 0.5 ? '0' : '1';
+        const x = i * this.fontSize;
+        const y = this.columns[i] * this.fontSize;
+
+        // Add opacity variation for glow effect
+        const opacity = Math.random() * 0.5 + 0.5;
+        this.ctx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
+        
+        this.ctx.fillText(text, x, y);
+
+        // Reset column or move it down
+        if (y > canvas.height && Math.random() > 0.98) {
+          this.columns[i] = 0;
+        }
+        this.columns[i]++;
+      }
+
+      // Continue animation
+      requestAnimationFrame(drawBinary);
+    };
+
+    // Start the animation
+    drawBinary();
   }
 
   // Update which levels are unlocked
