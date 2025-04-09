@@ -13,7 +13,7 @@ import { AuthService } from "../../services/auth.service"
       <canvas #binaryCanvas class="binary-rain"></canvas>
       <div class="content-wrapper">
         <header>
-          <h1>INICIAR SESIÓN</h1>
+          <h1>In1C10-D3-SeS10n</h1>
         </header>
         <main>
           <section class="login-form">
@@ -79,7 +79,7 @@ import { AuthService } from "../../services/auth.service"
     header {
       height: 15%;
       width: 100%;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: rgba(0, 0, 0, 0.75);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -102,12 +102,13 @@ import { AuthService } from "../../services/auth.service"
     }
 
     .login-form {
-      background-color: rgba(32, 32, 32, 0.85);
+      background-color: rgba(0, 0, 0, 0.75);
       padding: 2rem;
       width: 300px;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
+      border: 1px solid white;
     }
 
     .form-group {
@@ -117,9 +118,10 @@ import { AuthService } from "../../services/auth.service"
     .form-control {
       width: 100%;
       padding: 0.75rem;
-      background-color: rgba(48, 48, 48, 0.9);
+      background-color: rgba(0, 0, 0, 0.9);
       border: none;
       color: white;
+      border: 1px solid white;
       box-sizing: border-box;
       font-family: 'Courier New', monospace;
       font-size: 1rem;
@@ -132,9 +134,10 @@ import { AuthService } from "../../services/auth.service"
 
     .btn-submit {
       padding: 0.5rem 1.5rem;
-      background-color: rgba(48, 48, 48, 0.9);
+      background-color: rgba(0, 0, 0, 0.9);
       border: none;
       color: white;
+      border: 1px solid white;
       cursor: pointer;
       font-family: 'Courier New', monospace;
       font-size: 1rem;
