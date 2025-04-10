@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from "@angular/core"
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { Router } from "@angular/router"
 import { HttpClient } from "@angular/common/http"
@@ -10,19 +10,22 @@ import { HttpClient } from "@angular/common/http"
   template: `
     <div class="nebula"></div>
     <div class="galactic-grid"></div>
-    <div class="matrix-bg"></div>
     <div class="space-particles"></div>
-    <div class="glitch-overlay"></div>
     <div class="scan-line"></div>
+    <canvas #binaryCanvas class="binary-canvas"></canvas>
+    <button class="back-btn" (click)="goBack()">
+      <span class="back-text">BACK</span>
+      <div class="back-glow"></div>
+    </button>
     <header>
       <h1>H3X4V3RS0</h1>
     </header>
     <div class="x-container">
       <div class="image-container" *ngFor="let img of images; let i = index" [style.grid-area]="getGridArea(i)">
         <img [src]="getImagePath(img)" 
-             [alt]="getImageName(img)"
+             [alt]="getName(img)"
              class="image"
-             (click)="downloadImage(getImageName(img))"
+             (click)="downloadImage(getName(img))"
              (error)="handleImageError($event)"
              loading="lazy">
       </div>
@@ -44,95 +47,76 @@ import { HttpClient } from "@angular/common/http"
       position: relative;
     }
 
-    .matrix-bg {
+    .binary-canvas {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: -1;
-      background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9));
-      overflow: hidden;
-    }
-
-    .matrix-column {
-      position: absolute;
-      top: -100%;
-      color: #e0e0e0;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 16px;
-      line-height: 1.2;
-      white-space: nowrap;
-      animation: matrixRain linear infinite;
-      text-shadow: 0 0 8px rgba(200, 200, 220, 0.8);
-      opacity: 0.7;
-      letter-spacing: 1px;
-      writing-mode: vertical-lr;
-      text-orientation: upright;
-    }
-
-    @keyframes matrixRain {
-      0% {
-        transform: translateY(-100%);
-        opacity: 0;
-      }
-      10% {
-        opacity: 0.7;
-      }
-      90% {
-        opacity: 0.7;
-      }
-      100% {
-        transform: translateY(200vh);
-        opacity: 0;
-      }
-    }
-
-    .glitch-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.15),
-        rgba(0, 0, 0, 0.15) 1px,
-        transparent 1px,
-        transparent 2px
-      );
-      pointer-events: none;
       z-index: 1;
-      animation: glitchScan 12s linear infinite;
+      pointer-events: none;
     }
 
-    @keyframes glitchScan {
-      0% {
-        transform: translateY(-100%);
-      }
-      100% {
-        transform: translateY(100%);
-      }
-    }
-
-    .scan-line {
+    .nebula {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 2px;
-      background: rgba(200, 200, 220, 0.3);
-      box-shadow: 0 0 10px rgba(200, 200, 220, 0.7);
-      z-index: 2;
-      animation: scan 6s linear infinite;
+      height: 100%;
+      background: radial-gradient(
+        circle at 30% 30%,
+        rgba(200, 200, 220, 0.05) 0%,
+        rgba(0, 0, 0, 0) 50%
+      ),
+      radial-gradient(
+        circle at 70% 70%,
+        rgba(180, 190, 210, 0.05) 0%,
+        rgba(0, 0, 0, 0) 50%
+      );
+      z-index: -3;
+      animation: nebulaShift 30s linear infinite;
+      pointer-events: none;
     }
 
-    @keyframes scan {
+    @keyframes nebulaShift {
       0% {
-        transform: translateY(-100%);
+        background-position: 0% 0%, 100% 100%;
+      }
+      50% {
+        background-position: 100% 0%, 0% 100%;
       }
       100% {
-        transform: translateY(100vh);
+        background-position: 0% 0%, 100% 100%;
+      }
+    }
+
+    .galactic-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(200, 200, 220, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200, 200, 220, 0.05) 1px, transparent 1px);
+      background-size: 100px 100px;
+      z-index: -2;
+      animation: gridPulse 15s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes gridPulse {
+      0% {
+        opacity: 0.3;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.5;
+        transform: scale(1.05);
+      }
+      100% {
+        opacity: 0.3;
+        transform: scale(1);
       }
     }
 
@@ -173,66 +157,34 @@ import { HttpClient } from "@angular/common/http"
       }
     }
 
-    .galactic-grid {
+    .scan-line {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: 
-        linear-gradient(rgba(200, 200, 220, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(200, 200, 220, 0.05) 1px, transparent 1px);
-      background-size: 100px 100px;
-      z-index: -2;
-      animation: gridPulse 15s linear infinite;
+      z-index: 2;
+      overflow: hidden;
       pointer-events: none;
     }
 
-    @keyframes gridPulse {
-      0% {
-        opacity: 0.3;
-        transform: scale(1);
-      }
-      50% {
-        opacity: 0.5;
-        transform: scale(1.05);
-      }
-      100% {
-        opacity: 0.3;
-        transform: scale(1);
-      }
-    }
-
-    .nebula {
-      position: fixed;
+    .scan-effect {
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
-      background: radial-gradient(
-        circle at 30% 30%,
-        rgba(200, 200, 220, 0.05) 0%,
-        rgba(0, 0, 0, 0) 50%
-      ),
-      radial-gradient(
-        circle at 70% 70%,
-        rgba(180, 190, 210, 0.05) 0%,
-        rgba(0, 0, 0, 0) 50%
-      );
-      z-index: -3;
-      animation: nebulaShift 30s linear infinite;
-      pointer-events: none;
+      height: 2px;
+      background: rgba(200, 200, 220, 0.3);
+      box-shadow: 0 0 10px rgba(200, 200, 220, 0.7);
+      animation: scan 6s linear infinite;
     }
 
-    @keyframes nebulaShift {
+    @keyframes scan {
       0% {
-        background-position: 0% 0%, 100% 100%;
-      }
-      50% {
-        background-position: 100% 0%, 0% 100%;
+        transform: translateY(-100%);
       }
       100% {
-        background-position: 0% 0%, 100% 100%;
+        transform: translateY(100vh);
       }
     }
 
@@ -318,7 +270,8 @@ import { HttpClient } from "@angular/common/http"
       grid-template-rows: repeat(8, 80px);
       gap: 15px;
       position: relative;
-      margin: 50px auto;
+      margin-top: 50px;
+      margin-bottom: 50px;
       z-index: 10;
     }
 
@@ -342,9 +295,80 @@ import { HttpClient } from "@angular/common/http"
       width: 80px;
       height: 80px;
     }
+
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 1000;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .back-text {
+      position: relative;
+      z-index: 2;
+    }
+
+    .back-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0) 70%
+      );
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(0, 0, 0, 0.8);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .back-btn:hover .back-glow {
+      opacity: 1;
+    }
+
+    .back-btn:active {
+      transform: translateY(1px);
+    }
+
+    @keyframes glowPulse {
+      0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
+      50% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+      100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
+    }
+
+    .back-btn {
+      animation: glowPulse 2s infinite;
+    }
   `]
 })
 export class HexaComponent implements OnInit, AfterViewInit {
+  @ViewChild('binaryCanvas') binaryCanvas!: ElementRef<HTMLCanvasElement>;
+  private ctx!: CanvasRenderingContext2D;
+  private columns: number[] = [];
+  private fontSize = 14;
+  private animationFrameId: number | null = null;
+  private isCanvasInitialized = false;
+
   images = [
     "1 (1) h.jpg",
     "2 (1) h.jpg",
@@ -370,14 +394,91 @@ export class HexaComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.initMatrixEffect();
+    this.createScanEffect();
     this.createSpaceParticles();
   }
 
   ngAfterViewInit() {
-    this.createMatrixEffect();
-    setInterval(() => this.updateMatrixEffect(), 200);
-    window.addEventListener('resize', () => this.resizeMatrix());
+    this.createScanEffect();
+    if (!this.isCanvasInitialized) {
+      setTimeout(() => {
+        this.initBinaryCanvas();
+        this.isCanvasInitialized = true;
+      }, 100);
+    }
+  }
+
+  private initBinaryCanvas() {
+    if (!this.binaryCanvas || this.isCanvasInitialized) return;
+    
+    const canvas = this.binaryCanvas.nativeElement;
+    this.ctx = canvas.getContext('2d')!;
+
+    const setupCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      this.columns = Array(Math.floor(canvas.width / this.fontSize)).fill(0);
+    };
+
+    setupCanvas();
+
+    const debouncedResize = this.debounce(() => {
+      setupCanvas();
+    }, 250);
+
+    window.addEventListener('resize', debouncedResize);
+
+    const animate = () => {
+      if (!this.ctx || !canvas) return;
+
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      this.ctx.font = `${this.fontSize}px monospace`;
+
+      for (let i = 0; i < this.columns.length; i++) {
+        const text = Math.random() < 0.5 ? '0' : '1';
+        const x = i * this.fontSize;
+        const y = this.columns[i] * this.fontSize;
+        const opacity = Math.random() * 0.3 + 0.2;
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        this.ctx.fillText(text, x, y);
+
+        if (y > canvas.height && Math.random() > 0.98) {
+          this.columns[i] = 0;
+        }
+        this.columns[i]++;
+      }
+
+      if (this.animationFrameId) {
+        cancelAnimationFrame(this.animationFrameId);
+      }
+      this.animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+  }
+
+  private debounce(func: Function, wait: number) {
+    let timeout: NodeJS.Timeout;
+    return function executedFunction(...args: any[]) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  ngOnDestroy() {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+    this.isCanvasInitialized = false;
   }
 
   getGridArea(index: number): string {
@@ -390,7 +491,7 @@ export class HexaComponent implements OnInit, AfterViewInit {
     return gridAreas[index];
   }
 
-  getImageName(path: string): string {
+  getName(path: string): string {
     return path;
   }
 
@@ -401,38 +502,16 @@ export class HexaComponent implements OnInit, AfterViewInit {
   handleImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     console.error(`Error loading image: ${img.src}`);
+    img.src = 'assets/img/error-placeholder.jpg'; // Opcional: imagen de respaldo
   }
 
-  private createMatrixEffect() {
-    const matrixBg = document.querySelector('.matrix-bg');
-    if (!matrixBg) return;
+  private createScanEffect() {
+    const scanLine = document.querySelector('.scan-line');
+    if (!scanLine) return;
     
-    const columns = Math.floor(window.innerWidth / 15);
-    for (let i = 0; i < columns; i++) {
-      const column = document.createElement('div');
-      column.className = 'matrix-column';
-      column.style.left = `${i * 15}px`;
-      column.style.animationDuration = `${Math.random() * 5 + 8}s`;
-      
-      let binaryString = '';
-      for (let j = 0; j < 30; j++) {
-        binaryString += Math.random() > 0.5 ? '1' : '0';
-      }
-      column.textContent = binaryString;
-      
-      matrixBg.appendChild(column);
-    }
-  }
-
-  private updateMatrixEffect() {
-    const columns = document.querySelectorAll('.matrix-column');
-    columns.forEach(column => {
-      let binaryString = '';
-      for (let j = 0; j < 30; j++) {
-        binaryString += Math.random() > 0.5 ? '1' : '0';
-      }
-      column.textContent = binaryString;
-    });
+    const scanEffect = document.createElement('div');
+    scanEffect.className = 'scan-effect';
+    scanLine.appendChild(scanEffect);
   }
 
   private createSpaceParticles() {
@@ -456,22 +535,6 @@ export class HexaComponent implements OnInit, AfterViewInit {
       
       particlesContainer.appendChild(particle);
     }
-  }
-
-  private resizeMatrix() {
-    const matrixBg = document.querySelector('.matrix-bg');
-    if (!matrixBg) return;
-    
-    const columns = document.querySelectorAll('.matrix-column');
-    columns.forEach(column => column.remove());
-    
-    this.createMatrixEffect();
-  }
-
-  private initMatrixEffect() {
-    this.createMatrixEffect();
-    setInterval(() => this.updateMatrixEffect(), 200);
-    window.addEventListener('resize', () => this.resizeMatrix());
   }
 
   async downloadImage(filename: string) {
@@ -503,24 +566,3 @@ export class HexaComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/dir']);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
