@@ -13,7 +13,7 @@ import { AuthService } from "../../services/auth.service"
       <canvas #binaryCanvas class="binary-background"></canvas>
       <div class="content-wrapper">
         <header>
-          <h1>Flag-Hunters</h1>
+          <h1>Fl4G-HunTEr5</h1>
         </header>
         <main>
           <div class="levels-grid">
@@ -91,6 +91,7 @@ import { AuthService } from "../../services/auth.service"
     }
 
     h1 {
+      font-family: 'Courier Prime', monospace;
       color: white;
       margin: 0;
       font-size: clamp(1.5rem, 4vw, 2.5rem);
@@ -99,109 +100,146 @@ import { AuthService } from "../../services/auth.service"
     main {
       flex: 1;
       width: 100%;
+      height: calc(85vh - 4rem);
       padding: 2rem;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      gap: 2rem;
-      overflow-y: auto;
+      justify-content: space-between;
+      gap: 1.5rem;
+      overflow: hidden;
     }
 
     .levels-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, auto);
-      gap: 1.5rem;
-      width: 100%;
-      max-width: 1200px;
+      grid-template-rows: repeat(2, 1fr);
+      gap: 2rem;
+      width: 95%;
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 0 1rem;
+      height: 60%;
+      padding: 1rem;
     }
 
     .level-card {
       background-color: rgba(0, 0, 0, 0.85);
-      border: 1px solid rgba(0, 255, 0, 0.3);
-      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 0.75rem;
       color: white;
-      aspect-ratio: 16/9;
+      height: 100%;
+      max-height: 150px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       transition: all 0.3s ease;
       backdrop-filter: blur(5px);
-      box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+      margin: 0.5rem;
+      font-family: 'Courier Prime', monospace;
     }
 
     .level-card:hover {
       transform: scale(1.02);
-      border-color: rgba(0, 255, 0, 0.6);
-      box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+      border-color: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
     }
 
     .level-card h2 {
-      font-size: 1.5rem;
-      margin: 0 0 1rem 0;
+      font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+      margin: 0 0 0.5rem 0;
       text-align: center;
-      color: #00ff00;
+      color: white;
+      font-family: 'Courier Prime', monospace;
     }
 
     .level-content {
       text-align: center;
       width: 100%;
+      font-size: clamp(0.7rem, 1.3vw, 0.9rem);
+      font-family: 'Courier Prime', monospace;
+    }
+
+    .level-content p {
+      font-family: 'Courier Prime', monospace;
+      margin: 0;
     }
 
     a {
-      color: #00ff00;
+      color: white;
       text-decoration: none;
       transition: color 0.3s ease;
+      font-family: 'Courier Prime', monospace;
     }
 
     a:hover {
       color: #fff;
-      text-shadow: 0 0 5px #00ff00;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
     }
 
     .code-input {
       width: 100%;
-      max-width: 500px;
-      margin: auto;
+      max-width: 350px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.5rem;
       background-color: rgba(0, 0, 0, 0.85);
-      padding: 1.5rem;
-      border-radius: 8px;
+      padding: 0.75rem;
       backdrop-filter: blur(5px);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      font-family: 'Courier Prime', monospace;
     }
 
     .form-control {
       width: 100%;
-      padding: 0.75rem;
+      padding: 0.5rem;
       background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid rgba(0, 255, 0, 0.3);
-      color: #00ff00;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
       box-sizing: border-box;
       font-family: 'Courier Prime', monospace;
+      font-size: 0.9rem;
     }
 
     .form-control::placeholder {
-      color: rgba(0, 255, 0, 0.5);
+      color: rgba(255, 255, 255, 0.5);
+      font-family: 'Courier Prime', monospace;
     }
 
     .btn-submit {
-      padding: 0.75rem;
+      padding: 0.4rem;
+      width: 120px;
+      margin: 0 auto;
       background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid rgba(0, 255, 0, 0.3);
-      color: #00ff00;
+      border: 2px solid #ffffff;
+      color: white;
       cursor: pointer;
       font-family: 'Courier Prime', monospace;
+      font-size: 0.85rem;
       transition: all 0.3s ease;
+      border-radius: 4px;
     }
 
     .btn-submit:hover {
-      background-color: rgba(0, 255, 0, 0.1);
-      border-color: rgba(0, 255, 0, 0.6);
+      background-color: rgba(255, 255, 255, 0.1);
+      border-color: #ffffff;
+    }
+
+    .error-message,
+    .success-message {
+      font-size: 0.85rem;
+      margin: 0;
+      font-family: 'Courier Prime', monospace;
+    }
+
+    .success-message {
+      text-align: center;
+      color: white;
+      font-family: 'Courier Prime', monospace;
+      font-weight: normal;
     }
 
     .error-message {
@@ -209,36 +247,53 @@ import { AuthService } from "../../services/auth.service"
       text-align: center;
     }
 
-    .success-message {
-      color: #00ff00;
-      text-align: center;
-    }
-
     @media (max-width: 1024px) {
-      .levels-grid {
+      main {
+        padding: 1.5rem;
         gap: 1rem;
+      }
+
+      .levels-grid {
+        gap: 1.5rem;
+        width: 90%;
       }
     }
 
     @media (max-width: 768px) {
+      main {
+        padding: 1rem;
+      }
+
       .levels-grid {
+        gap: 1.25rem;
         grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(3, auto);
+        grid-template-rows: repeat(3, 1fr);
+        height: 75%;
+      }
+
+      .level-card {
+        max-height: 130px;
+      }
+
+      .code-input {
+        padding: 0.75rem;
       }
     }
 
     @media (max-width: 480px) {
       .levels-grid {
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(6, auto);
+        gap: 1rem;
+        width: 95%;
+        padding: 0.5rem;
       }
-      
-      main {
-        padding: 1rem;
+
+      .level-card {
+        margin: 0.25rem;
+        max-height: 120px;
       }
-      
+
       .code-input {
-        padding: 1rem;
+        padding: 0.5rem;
       }
     }
     `,
@@ -304,7 +359,7 @@ export class DirComponent implements OnInit, AfterViewInit {
       this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Set the color for the binary numbers
-      this.ctx.fillStyle = '#00ff00';
+      this.ctx.fillStyle = '#00c3ff';
       this.ctx.font = `${this.fontSize}px monospace`;
 
       // Draw the binary numbers
@@ -315,7 +370,7 @@ export class DirComponent implements OnInit, AfterViewInit {
 
         // Add opacity variation for glow effect
         const opacity = Math.random() * 0.5 + 0.5;
-        this.ctx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
+        this.ctx.fillStyle = `rgba(0, 195, 255, ${opacity})`;
         
         this.ctx.fillText(text, x, y);
 
