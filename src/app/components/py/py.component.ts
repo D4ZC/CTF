@@ -77,6 +77,14 @@ import { PyService } from "../../services/py.service"
             <button class="close-btn" (click)="closeInfo()">Close</button>
           </div>
         </div>
+
+        <div *ngIf="showFinalModal" class="modal">
+          <div class="modal-content final-modal">
+            <h2>Congratulations!</h2>
+            <p class="creator">Created by NanoIUTU</p>
+            <button class="close-btn" (click)="closeFinalModal()">Close</button>
+          </div>
+        </div>
       </main>
     </div>
   `,
@@ -329,6 +337,32 @@ import { PyService } from "../../services/py.service"
       opacity: 0.5;
       cursor: not-allowed;
     }
+
+    .final-modal {
+      text-align: center;
+      max-width: 400px;
+    }
+    .final-modal h2 {
+      color: #00ff00;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .final-modal h3 {
+      color: #00ff00;
+      font-size: 1.5rem;
+      margin: 1rem 0;
+      text-shadow: 0 0 10px #00ff00;
+    }
+    .final-modal p {
+      color: #00ff00;
+      font-size: 1.2rem;
+    }
+    .final-modal .creator {
+      color: #00ff00;
+      font-size: 1rem;
+      margin-top: 1rem;
+      font-style: italic;
+    }
   `],
 })
 export class PyComponent implements OnInit {
@@ -405,6 +439,7 @@ export class PyComponent implements OnInit {
   selectedCard: any = null
   headerText = "Py7h0n_3xp10t471on"
   completedCodes: string[] = []
+  showFinalModal = false;
 
   constructor(
     private pyService: PyService,
@@ -461,24 +496,28 @@ export class PyComponent implements OnInit {
           return
         }
         this.headerText = "dZ4hW6cV9G"
-        card.isSuccess = true
-        card.message = "Congratulations! You've completed all challenges!"
-        // Reset all cards except the current one
-        this.cards.forEach((c, index) => {
-          if (index !== card.id - 1) {
-            c.unlocked = false
-            c.codeInput = ""
-            c.message = ""
-          }
+        // Lock all exercises
+        this.cards.forEach((c) => {
+          c.unlocked = false
+          c.codeInput = ""
+          c.message = ""
         })
+        // Keep the last exercise locked
+        card.unlocked = false
         this.completedCodes = []
+        // Show the final modal
+        this.showFinalModal = true
       } else if (unlockedLevel === card.id + 1) {
         this.pyService.unlockLevel(unlockedLevel)
         this.cards[unlockedLevel - 1].unlocked = true
         card.isSuccess = true
         card.message = "Correct! Next exercise unlocked!"
         this.completedCodes.push(card.codeInput)
-        card.codeInput = ""
+        // Clear the current card's input and message after 3 seconds
+        setTimeout(() => {
+          card.codeInput = ""
+          card.message = ""
+        }, 3000)
       } else {
         card.isSuccess = false
         card.message = "Invalid code"
@@ -490,11 +529,18 @@ export class PyComponent implements OnInit {
   }
 
   isValidationEnabled(card: any): boolean {
-    // First level is always enabled
-    if (card.id === 1) return true;
+    // First level is always enabled until completed
+    if (card.id === 1) {
+      return !this.cards[1].unlocked;
+    }
     
-    // For other levels, check if previous level is completed
-    return this.cards[card.id - 2].unlocked;
+    // Last level is enabled when unlocked and not completed
+    if (card.id === 6) {
+      return card.unlocked && !this.completedCodes.includes(card.codeInput);
+    }
+    
+    // For other levels, check if the card is unlocked and not completed
+    return card.unlocked && !this.cards[card.id]?.unlocked && !this.completedCodes.includes(card.codeInput);
   }
 
   downloadPyFile(card: any): void {
@@ -536,5 +582,9 @@ export class PyComponent implements OnInit {
   closeInfo(): void {
     this.showInfoModal = false
     this.selectedCard = null
+  }
+
+  closeFinalModal(): void {
+    this.showFinalModal = false;
   }
 }
