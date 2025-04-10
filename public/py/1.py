@@ -3,5 +3,5 @@
 # Python script which just prints the flag
 ################################################################################
 
-flag ='picoCTF{run_s4n1ty_run}'
+flag = 'py7h0n_b3g1n'
 print(flag)

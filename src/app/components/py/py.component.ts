@@ -11,221 +11,400 @@ import { PyService } from "../../services/py.service"
   template: `
     <div class="py-container">
       <header>
-        <button class="back-btn" (click)="goBack()">Volver</button>
-        <h1>Py7h0n_3xp10t471on</h1>
+        <button class="back-btn" (click)="goBack()">← Back</button>
+        <h1>{{ headerText }}</h1>
       </header>
       <main>
-        <div class="cards-container">
+        <div class="exercises-grid">
           <div 
             *ngFor="let card of cards" 
-            class="card" 
-            [class.unlocked]="card.unlocked"
-            (click)="downloadPyFile(card)"
+            class="exercise-card"
+            [class.locked]="!card.unlocked"
           >
-            <h3>{{ card.title }}</h3>
-            <p>{{ card.description }}</p>
-            <div class="card-status">
-              {{ card.unlocked ? 'Desbloqueado' : 'Bloqueado' }}
+            <div class="card-header">
+              <h3>Exercise {{ card.id }}</h3>
+              <div class="lock-icon">
+                <i class="fas" [class.fa-lock]="!card.unlocked" [class.fa-lock-open]="card.unlocked"></i>
+              </div>
+            </div>
+            
+            <div class="card-actions">
+              <button 
+                class="action-btn download-btn" 
+                [disabled]="!card.unlocked"
+                (click)="downloadPyFile(card)"
+              >
+                <i class="fas fa-download"></i>
+                Download
+              </button>
+              <button 
+                class="action-btn info-btn"
+                (click)="showInfo(card)"
+              >
+                <i class="fas fa-info-circle"></i>
+                Info
+              </button>
+            </div>
+
+            <div class="validation-section" *ngIf="isValidationEnabled(card)">
+              <input 
+                type="text" 
+                [placeholder]="card.unlocked ? 'Enter completion code' : 'Complete previous level first'"
+                [(ngModel)]="card.codeInput"
+                class="code-input"
+                [disabled]="!isValidationEnabled(card)"
+                (keyup.enter)="validateCode(card)"
+              />
+              <button 
+                class="validate-btn"
+                [disabled]="!isValidationEnabled(card)"
+                (click)="validateCode(card)"
+              >
+                Validate
+              </button>
+            </div>
+
+            <div *ngIf="card.message" class="message" [class.success]="card.isSuccess" [class.error]="!card.isSuccess">
+              {{ card.message }}
             </div>
           </div>
         </div>
-        
-        <div class="code-input">
-          <input 
-            type="text" 
-            [(ngModel)]="codeInput" 
-            placeholder="Ingresa tu código" 
-            class="form-control"
-          />
-          <button (click)="validateCode()" class="btn-submit">Enviar</button>
-          <div *ngIf="message" class="message" [ngClass]="{'success': isSuccess, 'error': !isSuccess}">
-            {{ message }}
+
+        <div *ngIf="showInfoModal" class="modal">
+          <div class="modal-content">
+            <h2>Exercise {{ selectedCard?.id }}</h2>
+            <p>{{ selectedCard?.longDescription }}</p>
+            <button class="close-btn" (click)="closeInfo()">Close</button>
           </div>
         </div>
       </main>
     </div>
   `,
-  styles: [
-    `
+  styles: [`
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
     :host {
-      font-family: 'Courier Prime', monospace;
+      font-family: 'Share Tech Mono', monospace;
       display: block;
       height: 100vh;
       width: 100vw;
+      background-color: #000000;
     }
 
     .py-container {
-      background-color: #fff8dc; /* Light yellow/pastel */
-      height: 100%;
+      background-color: #000000;
+      min-height: 100%;
       display: flex;
       flex-direction: column;
+      color: #00ff00;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     header {
-      height: 15%;
-      width: 100%;
-      background-color: rgba(0, 0, 0, 0.75);
+      padding: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
+      margin-bottom: 40px;
     }
 
     h1 {
-      color: white;
+      color: #00ff00;
+      text-shadow: 0 0 10px #00ff00;
       margin: 0;
+      font-size: 2.5rem;
     }
 
     .back-btn {
       position: absolute;
       left: 20px;
       background-color: transparent;
-      border: 1px solid white;
-      color: white;
-      padding: 0.5rem 1rem;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      padding: 8px 16px;
       cursor: pointer;
-      font-family: 'Courier Prime', monospace;
-    }
-
-    main {
-      height: 85%;
-      width: 100%;
-      padding: 2rem;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-
-    .cards-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .card {
-      background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid white;
-      padding: 1.5rem;
-      color: white;
-      cursor: not-allowed;
-      opacity: 0.7;
+      font-family: 'Share Tech Mono', monospace;
       transition: all 0.3s ease;
+      text-shadow: 0 0 5px #00ff00;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
     }
 
-    .card.unlocked {
-      cursor: pointer;
-      opacity: 1;
+    .back-btn:hover {
+      background-color: #00ff00;
+      color: #000000;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
     }
 
-    .card.unlocked:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    .exercises-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      padding: 20px;
     }
 
-    .card-status {
-      margin-top: 1rem;
-      font-size: 0.8rem;
-      text-align: right;
-    }
-
-    .code-input {
-      margin-top: auto;
+    .exercise-card {
+      background-color: #000000;
+      border: 1px solid #00ff00;
+      border-radius: 10px;
+      padding: 20px;
+      color: #00ff00;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+      transition: all 0.3s ease;
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
     }
 
-    .form-control {
+    .exercise-card:hover {
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+      transform: translateY(-5px);
+    }
+
+    .exercise-card.locked {
+      opacity: 0.7;
+      filter: grayscale(0.5);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .card-header h3 {
+      margin: 0;
+      font-size: 1.5rem;
+      text-shadow: 0 0 5px #00ff00;
+    }
+
+    .lock-icon {
+      font-size: 1.2rem;
+      text-shadow: 0 0 5px #00ff00;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .action-btn {
+      background-color: transparent;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      padding: 8px;
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border-radius: 5px;
+    }
+
+    .action-btn:hover:not(:disabled) {
+      background-color: #00ff00;
+      color: #000000;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .validation-section {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .code-input {
+      background-color: transparent;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      padding: 8px 12px;
+      font-family: 'Share Tech Mono', monospace;
+      border-radius: 5px;
       width: 100%;
-      padding: 0.75rem;
-      background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid white;
-      color: white;
       box-sizing: border-box;
     }
 
-    .form-control::placeholder {
-      color: white;
-      font-family: 'Courier Prime', monospace;
+    .code-input::placeholder {
+      color: rgba(0, 255, 0, 0.5);
     }
 
-    .btn-submit {
-      padding: 0.75rem;
-      background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid white;
-      color: white;
+    .validate-btn {
+      background-color: transparent;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      padding: 8px 16px;
       cursor: pointer;
-      font-family: 'Courier Prime', monospace;
+      font-family: 'Share Tech Mono', monospace;
+      transition: all 0.3s ease;
+      border-radius: 5px;
+    }
+
+    .validate-btn:hover {
+      background-color: #00ff00;
+      color: #000000;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
     }
 
     .message {
       text-align: center;
-      padding: 0.5rem;
+      padding: 8px;
+      margin-top: 1rem;
+      border-radius: 5px;
+      font-size: 0.9rem;
     }
 
     .success {
-      color: green;
+      color: #00ff00;
+      border: 1px solid #00ff00;
+      background-color: rgba(0, 255, 0, 0.1);
     }
 
     .error {
-      color: red;
+      color: #ff0000;
+      border: 1px solid #ff0000;
+      background-color: rgba(255, 0, 0, 0.1);
     }
-  `,
-  ],
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background-color: #000000;
+      border: 1px solid #00ff00;
+      border-radius: 10px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      color: #00ff00;
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+    }
+
+    .close-btn {
+      margin-top: 1rem;
+      padding: 8px 16px;
+      background-color: transparent;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      transition: all 0.3s ease;
+      border-radius: 5px;
+      width: 100%;
+    }
+
+    .close-btn:hover {
+      background-color: #00ff00;
+      color: #000000;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+    }
+
+    .code-input:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .validate-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  `],
 })
 export class PyComponent implements OnInit {
   cards = [
     {
       id: 1,
-      title: "Nivel 1",
-      description: "Introducción a Python",
+      title: "Exercise 1",
+      description: "Introduction to Python",
+      longDescription: "Run the runme.py script to get the flag. Download the script with your browser or with wget in the webshell.",
       unlocked: true,
-      filename: "level1.py",
+      filename: "1.py",
+      codeInput: "",
+      message: "",
+      isSuccess: false
     },
     {
       id: 2,
-      title: "Nivel 2",
-      description: "Manipulación de strings",
+      title: "Exercise 2",
+      description: "String Manipulation",
+      longDescription: "Fix the syntax error in this Python script to print the flag.",
       unlocked: false,
-      filename: "level2.py",
+      filename: "2.py",
+      codeInput: "",
+      message: "",
+      isSuccess: false
     },
     {
       id: 3,
-      title: "Nivel 3",
-      description: "Estructuras de datos",
+      title: "Exercise 3",
+      description: "Data Structures",
+      longDescription: "Fix the syntax error in this Python script to print the flag.",
       unlocked: false,
-      filename: "level3.py",
+      filename: "3.py",
+      codeInput: "",
+      message: "",
+      isSuccess: false
     },
     {
       id: 4,
-      title: "Nivel 4",
-      description: "Funciones y módulos",
+      title: "Exercise 4",
+      description: "Functions and Modules",
+      longDescription: "Run the Python script and convert the given number from decimal to binary to get the flag. Note: There are multiple exercises in this one.",
       unlocked: false,
-      filename: "level4.py",
+      filename: "4.py",
+      codeInput: "",
+      message: "",
+      isSuccess: false
     },
     {
       id: 5,
-      title: "Nivel 5",
-      description: "Manejo de archivos",
+      title: "Exercise 5",
+      description: "File Handling",
+      longDescription: "Run the Python script code.py in the same directory as respuestas.txt.\nClick the download button to get both required files:\n- code.py\n- respuestas.txt",
       unlocked: false,
-      filename: "level5.py",
+      filename: "5.py",
+      codeInput: "",
+      message: "",
+      isSuccess: false
     },
     {
       id: 6,
-      title: "Nivel 6",
-      description: "Explotación avanzada",
+      title: "Exercise 6",
+      description: "Advanced Exploitation",
+      longDescription: "Can you get the flag?\nReverse engineer this Python program.",
       unlocked: false,
-      filename: "level6.py",
-    },
+      filename: "6.py",
+      codeInput: "",
+      message: "",
+      isSuccess: false
+    }
   ]
 
-  codeInput = ""
-  message = ""
-  isSuccess = false
+  showInfoModal = false
+  selectedCard: any = null
+  headerText = "Py7h0n_3xp10t471on"
+  completedCodes: string[] = []
 
   constructor(
     private pyService: PyService,
@@ -233,7 +412,6 @@ export class PyComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Update unlocked levels
     this.updateUnlockedLevels()
   }
 
@@ -241,7 +419,6 @@ export class PyComponent implements OnInit {
     this.router.navigate(["/dir"])
   }
 
-  // Update which levels are unlocked
   updateUnlockedLevels(): void {
     for (let i = 1; i <= 6; i++) {
       if (this.pyService.isLevelUnlocked(i)) {
@@ -250,33 +427,114 @@ export class PyComponent implements OnInit {
     }
   }
 
-  // Validate the entered code
-  validateCode(): void {
-    this.message = ""
+  validateCode(card: any): void {
+    card.message = ""
+    
+    // Check if previous level is completed (except for level 1)
+    if (card.id > 1 && !this.cards[card.id - 2].unlocked) {
+      card.isSuccess = false
+      card.message = "Invalid code"
+      return
+    }
+    
+    // Check if this level is already completed
+    if (card.id < 6 && this.cards[card.id].unlocked) {
+      card.isSuccess = false
+      card.message = "Invalid code"
+      return
+    }
 
-    const unlockedLevel = this.pyService.validatePyCode(this.codeInput)
+    if (!card.codeInput.trim()) {
+      card.isSuccess = false
+      card.message = "Invalid code"
+      return
+    }
+
+    const unlockedLevel = this.pyService.validatePyCode(card.codeInput)
 
     if (unlockedLevel) {
-      this.pyService.unlockLevel(unlockedLevel)
-      this.cards[unlockedLevel - 1].unlocked = true
-      this.isSuccess = true
-      this.message = `¡Nivel ${unlockedLevel} desbloqueado!`
-      this.codeInput = ""
+      // Special case for the final code (level 7) - only works on the last card
+      if (unlockedLevel === 7) {
+        if (card.id !== 6) {
+          card.isSuccess = false
+          card.message = "Invalid code"
+          return
+        }
+        this.headerText = "dZ4hW6cV9G"
+        card.isSuccess = true
+        card.message = "Congratulations! You've completed all challenges!"
+        // Reset all cards except the current one
+        this.cards.forEach((c, index) => {
+          if (index !== card.id - 1) {
+            c.unlocked = false
+            c.codeInput = ""
+            c.message = ""
+          }
+        })
+        this.completedCodes = []
+      } else if (unlockedLevel === card.id + 1) {
+        this.pyService.unlockLevel(unlockedLevel)
+        this.cards[unlockedLevel - 1].unlocked = true
+        card.isSuccess = true
+        card.message = "Correct! Next exercise unlocked!"
+        this.completedCodes.push(card.codeInput)
+        card.codeInput = ""
+      } else {
+        card.isSuccess = false
+        card.message = "Invalid code"
+      }
     } else {
-      this.isSuccess = false
-      this.message = "Código inválido"
+      card.isSuccess = false
+      card.message = "Invalid code"
     }
   }
 
-  // Download Python file
+  isValidationEnabled(card: any): boolean {
+    // First level is always enabled
+    if (card.id === 1) return true;
+    
+    // For other levels, check if previous level is completed
+    return this.cards[card.id - 2].unlocked;
+  }
+
   downloadPyFile(card: any): void {
     if (card.unlocked) {
-      const link = document.createElement("a")
-      link.href = `assets/py/${card.filename}`
-      link.download = card.filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      // For exercise 5, download both files
+      if (card.id === 5) {
+        // Download 5.py
+        const link1 = document.createElement("a")
+        link1.href = `/py/${card.filename}`
+        link1.download = card.filename
+        document.body.appendChild(link1)
+        link1.click()
+        document.body.removeChild(link1)
+
+        // Download respuestas.txt
+        const link2 = document.createElement("a")
+        link2.href = `/py/respuestas.txt`
+        link2.download = "respuestas.txt"
+        document.body.appendChild(link2)
+        link2.click()
+        document.body.removeChild(link2)
+      } else {
+        // For other exercises, download only the Python file
+        const link = document.createElement("a")
+        link.href = `/py/${card.filename}`
+        link.download = card.filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
     }
+  }
+
+  showInfo(card: any): void {
+    this.selectedCard = card
+    this.showInfoModal = true
+  }
+
+  closeInfo(): void {
+    this.showInfoModal = false
+    this.selectedCard = null
   }
 }
