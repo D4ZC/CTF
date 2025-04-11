@@ -1,5 +1,5 @@
-import { Component } from "@angular/core"
-import { CommonModule } from "@angular/common"
+import { Component, PLATFORM_ID, Inject } from "@angular/core"
+import { CommonModule, isPlatformBrowser } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
 
@@ -39,25 +39,69 @@ import { Router } from "@angular/router"
     }
 
     .ulti-container {
-      background-color: #1a472a; /* Dark green */
+      background-color: #1a472a;
       height: 100%;
       display: flex;
       flex-direction: column;
     }
 
     header {
-      height: 15%;
-      width: 100%;
-      background-color: rgba(0, 0, 0, 0.75);
+      padding: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
+      margin-bottom: 40px;
+      background-color: transparent;
     }
 
     h1 {
-      color: white;
+      color: #00FF00;
       margin: 0;
+      font-size: 2.5rem;
+      animation: neonTitle 3s infinite;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    @keyframes neonTitle {
+      0% {
+        text-shadow: 0 0 5px #00FF00,
+                     0 0 10px #00FF00,
+                     0 0 15px #00FF00,
+                     0 0 20px #00FF00,
+                     0 0 25px #00FF00;
+        opacity: 1;
+      }
+      25% {
+        text-shadow: 0 0 10px #00FF00,
+                     0 0 20px #00FF00,
+                     0 0 30px #00FF00,
+                     0 0 40px #00FF00,
+                     0 0 50px #00FF00;
+        opacity: 1;
+      }
+      50% {
+        text-shadow: none;
+        opacity: 0.3;
+      }
+      75% {
+        text-shadow: 0 0 10px #00FF00,
+                     0 0 20px #00FF00,
+                     0 0 30px #00FF00,
+                     0 0 40px #00FF00,
+                     0 0 50px #00FF00;
+        opacity: 1;
+      }
+      100% {
+        text-shadow: 0 0 5px #00FF00,
+                     0 0 10px #00FF00,
+                     0 0 15px #00FF00,
+                     0 0 20px #00FF00,
+                     0 0 25px #00FF00;
+        opacity: 1;
+      }
     }
 
     .back-btn {
@@ -128,17 +172,21 @@ import { Router } from "@angular/router"
       color: red;
     }
   `,
-  ],
+],
 })
 export class UltiComponent {
   flagInput = ""
   message = ""
   isSuccess = false
-
-  // The correct flag
   private readonly correctFlag: string = "ptechCTF{N0w-y0u-4R3_4_tRu3_H4cK3R!}"
+  private isBrowser: boolean
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId)
+  }
 
   goBack(): void {
     this.router.navigate(["/dir"])
@@ -148,6 +196,13 @@ export class UltiComponent {
     if (this.flagInput === this.correctFlag) {
       this.isSuccess = true
       this.message = "Felicidades conseguiste la Flag, ahora eres un flag-hunter"
+      if (this.isBrowser) {
+        try {
+          localStorage.setItem('ultiFlag', 'true')
+        } catch (error) {
+          console.error('Error accessing localStorage:', error)
+        }
+      }
     } else {
       this.isSuccess = false
       this.message = "Sigue intentandolo"
