@@ -503,7 +503,7 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
   private matrixFontSize = 10;
   private matrixColumns = 0;
 
-  // Archivos de ejercicios almacenados directamente en el componente
+  // Archivos de ejercicios almacenados directamente en el componente como fallback
   private readonly exerciseFiles: { [key: number]: string } = {
     1: `# Exercise 1
 # Created by NanoIUTU
@@ -742,6 +742,7 @@ if __name__ == "__main__":
     card.message = 'Downloading...';
     card.isSuccess = false;
 
+    // Obtener el archivo desde assets/py
     this.getFileContent(card.id).subscribe({
       next: (content: string) => {
         if (!content) {
@@ -783,7 +784,12 @@ if __name__ == "__main__":
   }
 
   private getFileContent(id: number): Observable<string> {
-    return this.http.get(`assets/py/${id}.py`, { responseType: 'text' })
+    if (!this.isBrowser) {
+      return of('');
+    }
+    
+    // Usar la ruta relativa correcta para assets
+    return this.http.get(`/assets/py/${id}.py`, { responseType: 'text' })
       .pipe(
         catchError(error => {
           console.error(`Error loading file ${id}.py:`, error);
