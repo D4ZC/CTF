@@ -503,64 +503,6 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
   private matrixFontSize = 10;
   private matrixColumns = 0;
 
-  // Archivos de ejercicios almacenados directamente en el componente como fallback
-  private readonly exerciseFiles: { [key: number]: string } = {
-    1: `# Exercise 1
-# Created by NanoIUTU
-
-def main():
-    # Your code here
-    pass
-
-if __name__ == "__main__":
-    main()`,
-    2: `# Exercise 2
-# Created by NanoIUTU
-
-def main():
-    # Your code here
-    pass
-
-if __name__ == "__main__":
-    main()`,
-    3: `# Exercise 3
-# Created by NanoIUTU
-
-def main():
-    # Your code here
-    pass
-
-if __name__ == "__main__":
-    main()`,
-    4: `# Exercise 4
-# Created by NanoIUTU
-
-def main():
-    # Your code here
-    pass
-
-if __name__ == "__main__":
-    main()`,
-    5: `# Exercise 5
-# Created by NanoIUTU
-
-def main():
-    # Your code here
-    pass
-
-if __name__ == "__main__":
-    main()`,
-    6: `# Exercise 6
-# Created by NanoIUTU
-
-def main():
-    # Your code here
-    pass
-
-if __name__ == "__main__":
-    main()`
-  };
-
   cards = [
     {
       id: 1,
@@ -700,7 +642,7 @@ if __name__ == "__main__":
   }
 
   goBack(): void {
-    this.router.navigate(['/']);
+    this.router.navigate(['/dir']);
   }
 
   updateUnlockedLevels(): void {
@@ -789,7 +731,7 @@ if __name__ == "__main__":
     }
     
     // Usar la ruta relativa correcta para assets
-    return this.http.get(`/assets/py/${id}.py`, { responseType: 'text' })
+    return this.http.get(`assets/py/${id}.py`, { responseType: 'text' })
       .pipe(
         catchError(error => {
           console.error(`Error loading file ${id}.py:`, error);
