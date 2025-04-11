@@ -49,28 +49,23 @@ import { Observable, catchError, of } from "rxjs"
               </button>
             </div>
 
-            <div class="validation-section" *ngIf="isValidationEnabled(card)">
-              <input 
-                type="text" 
-                [placeholder]="card.unlocked ? 'Enter completion code' : 'Complete previous level first'"
-                [(ngModel)]="card.codeInput"
-                class="code-input"
-                [disabled]="!isValidationEnabled(card)"
-                (keyup.enter)="validateCode(card)"
-              />
-              <button 
-                class="validate-btn"
-                [disabled]="!isValidationEnabled(card)"
-                (click)="validateCode(card)"
-              >
-                Validate
-              </button>
-            </div>
-
             <div *ngIf="card.message" class="message" [class.success]="card.isSuccess" [class.error]="!card.isSuccess">
               {{ card.message }}
             </div>
           </div>
+        </div>
+
+        <div class="code-input">
+          <input 
+            type="text" 
+            [(ngModel)]="codeInput" 
+            placeholder="Ingresa el código de desbloqueo" 
+            class="form-control"
+            (keyup.enter)="validateCode()"
+          />
+          <button (click)="validateCode()" class="btn-submit">Validar</button>
+          <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+          <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
         </div>
 
         <div *ngIf="showInfoModal" class="modal">
@@ -247,6 +242,7 @@ import { Observable, catchError, of } from "rxjs"
       gap: 2rem;
       padding: 20px;
       background-color: transparent;
+      margin-bottom: 2rem;
     }
 
     .exercise-card {
@@ -341,76 +337,73 @@ import { Observable, catchError, of } from "rxjs"
       cursor: not-allowed;
     }
 
-    .validation-section {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1rem;
-      margin-top: 1rem;
-      background-color: transparent;
-    }
-
     .code-input {
-      background-color: transparent;
-      border: 1px solid #ffff00;
-      color: #ffff00;
-      padding: 8px 12px;
-      font-family: 'Share Tech Mono', monospace;
-      border-radius: 5px;
       width: 100%;
+      max-width: 350px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background-color: rgba(0, 0, 0, 0.85);
+      padding: 0.75rem;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      background-color: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
       box-sizing: border-box;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
     }
 
-    .code-input::placeholder {
-      color: rgba(255, 255, 0, 0.5);
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+      font-family: 'Share Tech Mono', monospace;
     }
 
-    .validate-btn {
-      background-color: transparent;
-      border: 1px solid #00a2ff;
-      color: #00a2ff;
-      padding: 8px 16px;
+    .btn-submit {
+      padding: 0.4rem;
+      width: 120px;
+      margin: 0 auto;
+      background-color: rgba(0, 0, 0, 0.75);
+      border: 2px solid #ffffff;
+      color: white;
       cursor: pointer;
       font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
       transition: all 0.3s ease;
-      border-radius: 5px;
-      text-shadow: 0 0 5px #00a2ff;
+      border-radius: 4px;
     }
 
-    .validate-btn:hover:not(:disabled) {
-      background-color: #00a2ff;
-      color: #000000;
-      box-shadow: 0 0 20px #00a2ff,
-                  0 0 40px #00a2ff,
-                  0 0 60px #00a2ff;
-      transform: scale(1.05);
-      text-shadow: none;
+    .btn-submit:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-color: #ffffff;
     }
 
-    .validate-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .error-message,
+    .success-message {
+      font-size: 0.85rem;
+      margin: 0;
+      font-family: 'Share Tech Mono', monospace;
     }
 
-    .message {
+    .success-message {
       text-align: center;
-      padding: 8px;
-      margin-top: 1rem;
-      border-radius: 5px;
-      font-size: 0.9rem;
-      background-color: rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(5px);
+      color: white;
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: normal;
     }
 
-    .success {
-      color: #ffff00;
-      border: 1px solid #ffff00;
-      background-color: rgba(255, 255, 0, 0.1);
-    }
-
-    .error {
-      color: #ff0000;
-      border: 1px solid #ff0000;
-      background-color: rgba(255, 0, 0, 0.1);
+    .error-message {
+      color: #ff4444;
+      text-align: center;
     }
 
     .modal {
@@ -464,16 +457,6 @@ import { Observable, catchError, of } from "rxjs"
       text-shadow: none;
     }
 
-    .code-input:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .validate-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
     .modal-content.final-modal {
       text-align: center;
       max-width: 400px;
@@ -507,7 +490,6 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     {
       id: 1,
       unlocked: true,
-      codeInput: '',
       message: '',
       isSuccess: false,
       longDescription: 'Level 1: Basic Python syntax and variables'
@@ -515,7 +497,6 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     {
       id: 2,
       unlocked: false,
-      codeInput: '',
       message: '',
       isSuccess: false,
       longDescription: 'Level 2: Control structures and loops'
@@ -523,7 +504,6 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     {
       id: 3,
       unlocked: false,
-      codeInput: '',
       message: '',
       isSuccess: false,
       longDescription: 'Level 3: Functions and modules'
@@ -531,7 +511,6 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     {
       id: 4,
       unlocked: false,
-      codeInput: '',
       message: '',
       isSuccess: false,
       longDescription: 'Level 4: Object-oriented programming'
@@ -539,7 +518,6 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     {
       id: 5,
       unlocked: false,
-      codeInput: '',
       message: '',
       isSuccess: false,
       longDescription: 'Level 5: File handling and exceptions'
@@ -547,7 +525,6 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     {
       id: 6,
       unlocked: false,
-      codeInput: '',
       message: '',
       isSuccess: false,
       longDescription: 'Level 6: Advanced Python concepts'
@@ -558,12 +535,13 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedCard: any = null;
   headerText = "Py7h0n_3xp10t471on";
   showFinalModal = false;
+  codeInput = "";
+  errorMessage = "";
+  successMessage = "";
 
   constructor(
     private pyService: PyService,
     private router: Router,
-    private ngZone: NgZone,
-    private http: HttpClient,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -575,9 +553,7 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (this.isBrowser) {
-      this.ngZone.runOutsideAngular(() => {
-        this.startMatrixAnimation();
-      });
+      this.startMatrixAnimation();
     }
   }
 
@@ -651,27 +627,27 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  validateCode(card: any): void {
-    if (!card.codeInput) return;
+  validateCode(): void {
+    this.errorMessage = "";
+    this.successMessage = "";
 
-    const nextLevel = this.pyService.validatePyCode(card.codeInput);
+    if (!this.codeInput) {
+      this.errorMessage = "Por favor ingresa un código";
+      return;
+    }
+
+    const nextLevel = this.pyService.validatePyCode(this.codeInput);
     if (nextLevel) {
-      card.message = 'Success! Level unlocked!';
-      card.isSuccess = true;
-      this.pyService.unlockLevel(nextLevel);
+      this.successMessage = `¡Nivel ${nextLevel} desbloqueado!`;
       this.updateUnlockedLevels();
+      this.codeInput = "";
       
-      if (nextLevel === 7) {
+      if (nextLevel === 6) {
         this.showFinalModal = true;
       }
     } else {
-      card.message = 'Invalid code. Try again!';
-      card.isSuccess = false;
+      this.errorMessage = "Código inválido";
     }
-  }
-
-  isValidationEnabled(card: any): boolean {
-    return card.unlocked;
   }
 
   downloadPyFile(card: any): void {
@@ -731,13 +707,7 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     
     // Usar la ruta relativa correcta para assets
-    return this.http.get(`assets/py/${id}.py`, { responseType: 'text' })
-      .pipe(
-        catchError(error => {
-          console.error(`Error loading file ${id}.py:`, error);
-          return of('');
-        })
-      );
+    return this.getFileContent(id);
   }
 
   showInfo(card: any): void {

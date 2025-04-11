@@ -1,8 +1,7 @@
-import { Component, OnInit } from "@angular/core"
-import { CommonModule } from "@angular/common"
+import { Component, PLATFORM_ID, Inject } from "@angular/core"
+import { CommonModule, isPlatformBrowser } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
-import { UltiService } from "../../services/ulti.service"
 
 @Component({
   selector: "app-ulti",
@@ -30,7 +29,8 @@ import { UltiService } from "../../services/ulti.service"
       </main>
     </div>
   `,
-  styles: [`
+  styles: [
+    `
     :host {
       font-family: 'Courier Prime', monospace;
       display: block;
@@ -171,21 +171,21 @@ import { UltiService } from "../../services/ulti.service"
     .error {
       color: red;
     }
-  `]
+  `,
+],
 })
-export class UltiComponent implements OnInit {
+export class UltiComponent {
   flagInput = ""
   message = ""
   isSuccess = false
   private readonly correctFlag: string = "ptechCTF{N0w-y0u-4R3_4_tRu3_H4cK3R!}"
+  private isBrowser: boolean
 
   constructor(
     private router: Router,
-    private ultiService: UltiService
-  ) {}
-
-  ngOnInit(): void {
-    this.isSuccess = this.ultiService.getFlagCompleted();
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId)
   }
 
   goBack(): void {
@@ -196,7 +196,13 @@ export class UltiComponent implements OnInit {
     if (this.flagInput === this.correctFlag) {
       this.isSuccess = true
       this.message = "Felicidades conseguiste la Flag, ahora eres un flag-hunter"
-      this.ultiService.setFlagCompleted(true)
+      if (this.isBrowser) {
+        try {
+          localStorage.setItem('ultiFlag', 'true')
+        } catch (error) {
+          console.error('Error accessing localStorage:', error)
+        }
+      }
     } else {
       this.isSuccess = false
       this.message = "Sigue intentandolo"
