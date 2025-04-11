@@ -1,4 +1,4 @@
-import { Component, type OnInit, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, Inject, NgZone, OnDestroy } from "@angular/core"
+import { Component, type OnInit, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, Inject } from "@angular/core"
 import { CommonModule, isPlatformBrowser } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
@@ -12,7 +12,7 @@ import { PyService } from "../../services/py.service"
     <div class="py-container">
       <canvas #matrixCanvas class="matrix-canvas"></canvas>
       <header>
-        <button class="back-btn" (click)="goBack()">← Back</button>
+        <button class="back-btn" (click)="goBack()">← Volver</button>
         <h1>{{ headerText }}</h1>
       </header>
       <main>
@@ -23,7 +23,7 @@ import { PyService } from "../../services/py.service"
             [class.locked]="!card.unlocked"
           >
             <div class="card-header">
-              <h3>Exercise {{ card.id }}</h3>
+              <h3>Nivel {{ card.id }}</h3>
               <div class="lock-icon">
                 <i class="fas" [class.fa-lock]="!card.unlocked" [class.fa-lock-open]="card.unlocked"></i>
               </div>
@@ -36,7 +36,7 @@ import { PyService } from "../../services/py.service"
                 (click)="downloadPyFile(card)"
               >
                 <i class="fas fa-download"></i>
-                Download
+                Descargar
               </button>
               <button 
                 class="action-btn info-btn"
@@ -53,32 +53,34 @@ import { PyService } from "../../services/py.service"
           </div>
         </div>
 
-        <div class="code-input">
-          <input 
-            type="text" 
-            [(ngModel)]="codeInput" 
-            placeholder="Ingresa el código de desbloqueo" 
-            class="form-control"
-            (keyup.enter)="validateCode()"
-          />
-          <button (click)="validateCode()" class="btn-submit">Validar</button>
+        <div class="code-input-container">
+          <div class="code-input">
+            <input 
+              type="text" 
+              [(ngModel)]="codeInput" 
+              placeholder="Ingresa el código de desbloqueo" 
+              class="form-control"
+              (keyup.enter)="validateCode()"
+            />
+            <button (click)="validateCode()" class="btn-submit">Validar</button>
+          </div>
           <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
           <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
         </div>
 
         <div *ngIf="showInfoModal" class="modal">
           <div class="modal-content">
-            <h2>Exercise {{ selectedCard?.id }}</h2>
+            <h2>Nivel {{ selectedCard?.id }}</h2>
             <p>{{ selectedCard?.longDescription }}</p>
-            <button class="close-btn" (click)="closeInfo()">Close</button>
+            <button class="close-btn" (click)="closeInfo()">Cerrar</button>
           </div>
         </div>
 
         <div *ngIf="showFinalModal" class="modal">
           <div class="modal-content final-modal">
-            <h2>Congratulations!</h2>
-            <p class="creator">Created by NanoIUTU</p>
-            <button class="close-btn" (click)="closeFinalModal()">Close</button>
+            <h2>¡Felicidades!</h2>
+            <p class="creator">Creado por NanoIUTU</p>
+            <button class="close-btn" (click)="closeFinalModal()">Cerrar</button>
           </div>
         </div>
       </main>
@@ -90,79 +92,19 @@ import { PyService } from "../../services/py.service"
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
-    @keyframes neonTitle {
-      0% {
-        text-shadow: 0 0 5px #ffff00,
-                     0 0 10px #ffff00,
-                     0 0 15px #ffff00,
-                     0 0 20px #ffff00,
-                     0 0 25px #ffff00;
-        opacity: 1;
-      }
-      25% {
-        text-shadow: 0 0 10px #ffff00,
-                     0 0 20px #ffff00,
-                     0 0 30px #ffff00,
-                     0 0 40px #ffff00,
-                     0 0 50px #ffff00;
-        opacity: 1;
-      }
-      50% {
-        text-shadow: none;
-        opacity: 0.3;
-      }
-      75% {
-        text-shadow: 0 0 10px #ffff00,
-                     0 0 20px #ffff00,
-                     0 0 30px #ffff00,
-                     0 0 40px #ffff00,
-                     0 0 50px #ffff00;
-        opacity: 1;
-      }
-      100% {
-        text-shadow: 0 0 5px #ffff00,
-                     0 0 10px #ffff00,
-                     0 0 15px #ffff00,
-                     0 0 20px #ffff00,
-                     0 0 25px #ffff00;
-        opacity: 1;
-      }
-    }
-
-    @keyframes neonButton {
-      0% {
-        box-shadow: 0 0 5px #00a2ff,
-                    0 0 10px #00a2ff,
-                    0 0 15px #00a2ff;
-        transform: scale(1);
-      }
-      50% {
-        box-shadow: 0 0 10px #00a2ff,
-                    0 0 20px #00a2ff,
-                    0 0 30px #00a2ff;
-        transform: scale(1.05);
-      }
-      100% {
-        box-shadow: 0 0 5px #00a2ff,
-                    0 0 10px #00a2ff,
-                    0 0 15px #00a2ff;
-        transform: scale(1);
-      }
-    }
-
     :host {
       font-family: 'Share Tech Mono', monospace;
       display: block;
       height: 100vh;
       width: 100vw;
       position: relative;
+      background-color: #000;
     }
 
     .matrix-canvas {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       z-index: 0;
@@ -175,98 +117,85 @@ import { PyService } from "../../services/py.service"
       display: flex;
       flex-direction: column;
       color: #ffff00;
-      padding: 20px;
       box-sizing: border-box;
       position: relative;
       z-index: 1;
     }
 
     header {
-      padding: 20px;
+      height: %;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.75);
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
-      margin-bottom: 40px;
-      background-color: transparent;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 0, 0.3);
     }
 
     h1 {
       color: #ffff00;
       margin: 0;
       font-size: 2.5rem;
-      animation: neonTitle 3s infinite;
       font-family: 'Orbitron', sans-serif;
       font-weight: 800;
       letter-spacing: 2px;
+      text-shadow: 0 0 10px #ffff00;
     }
 
     .back-btn {
       position: absolute;
       left: 20px;
       background-color: transparent;
-      border: 1px solid #00a2ff;
-      color: #00a2ff;
+      border: 1px solid #ffff00;
+      color: #ffff00;
       padding: 12px 24px;
       cursor: pointer;
       font-family: 'Share Tech Mono', monospace;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      text-shadow: 0 0 5px #00a2ff;
+      text-shadow: 0 0 5px #ffff00;
       border-radius: 25px;
-      animation: subtleGlow 2s ease-in-out infinite;
     }
 
     .back-btn:hover {
-      background-color: rgba(0, 162, 255, 0.1);
-      color: #00a2ff;
+      background-color: rgba(255, 255, 0, 0.1);
+      color: #ffff00;
       transform: translateX(-5px);
-      box-shadow: 0 0 15px rgba(0, 162, 255, 0.3);
-      text-shadow: 0 0 10px #00a2ff;
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+      text-shadow: 0 0 10px #ffff00;
     }
 
-    @keyframes subtleGlow {
-      0%, 100% {
-        box-shadow: 0 0 5px rgba(0, 162, 255, 0.2),
-                    0 0 10px rgba(0, 162, 255, 0.1);
-      }
-      50% {
-        box-shadow: 0 0 10px rgba(0, 162, 255, 0.3),
-                    0 0 20px rgba(0, 162, 255, 0.2);
-      }
+    main {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
     }
 
     .exercises-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      padding: 20px;
-      background-color: transparent;
-      margin-bottom: 2rem;
+      gap: 1.5rem;
+      padding: 10px;
     }
 
     .exercise-card {
-      background-color: rgba(0, 0, 0, 0.2);
-      border: 1px solid #ffff00;
-      border-radius: 10px;
-      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 0, 0.3);
+      border-radius: 8px;
+      padding: 15px;
       color: #ffff00;
-      box-shadow: 0 0 20px rgba(255, 255, 0, 0.2);
       transition: all 0.3s ease;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      position: relative;
-      z-index: 2;
+      gap: 0.8rem;
       backdrop-filter: blur(5px);
     }
 
     .exercise-card:hover {
-      box-shadow: 0 0 30px rgba(255, 255, 0, 0.6),
-                  0 0 50px rgba(255, 255, 0, 0.4),
-                  0 0 70px rgba(255, 255, 0, 0.2);
-      transform: translateY(-5px) scale(1.02);
-      z-index: 2;
-      background-color: rgba(0, 0, 0, 0.3);
+      border-color: #ffff00;
+      box-shadow: 0 0 20px rgba(255, 255, 0, 0.2);
+      transform: translateY(-3px);
     }
 
     .exercise-card.locked {
@@ -274,22 +203,16 @@ import { PyService } from "../../services/py.service"
       filter: grayscale(0.5);
     }
 
-    .exercise-card.locked:hover {
-      box-shadow: 0 0 20px rgba(255, 255, 0, 0.2);
-      transform: none;
-    }
-
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
-      background-color: transparent;
+      margin-bottom: 0.5rem;
     }
 
     .card-header h3 {
       margin: 0;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       text-shadow: 0 0 5px #ffff00;
     }
 
@@ -301,14 +224,13 @@ import { PyService } from "../../services/py.service"
     .card-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      background-color: transparent;
+      gap: 0.8rem;
     }
 
     .action-btn {
       background-color: transparent;
-      border: 1px solid #00a2ff;
-      color: #00a2ff;
+      border: 1px solid #ffff00;
+      color: #ffff00;
       padding: 8px;
       cursor: pointer;
       font-family: 'Share Tech Mono', monospace;
@@ -317,18 +239,13 @@ import { PyService } from "../../services/py.service"
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      border-radius: 5px;
-      text-shadow: 0 0 5px #00a2ff;
+      border-radius: 4px;
+      text-shadow: 0 0 5px #ffff00;
     }
 
     .action-btn:hover:not(:disabled) {
-      background-color: #00a2ff;
-      color: #000000;
-      box-shadow: 0 0 20px #00a2ff,
-                  0 0 40px #00a2ff,
-                  0 0 60px #00a2ff;
+      background-color: rgba(255, 255, 0, 0.1);
       transform: scale(1.05);
-      text-shadow: none;
     }
 
     .action-btn:disabled {
@@ -336,73 +253,77 @@ import { PyService } from "../../services/py.service"
       cursor: not-allowed;
     }
 
-    .code-input {
+    .code-input-container {
       width: 100%;
-      max-width: 350px;
-      margin: 0 auto;
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 0, 0.3);
+      position: relative;
+      z-index: 2;
+    }
+
+    .code-input {
       display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      background-color: rgba(0, 0, 0, 0.85);
-      padding: 0.75rem;
-      backdrop-filter: blur(5px);
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      font-family: 'Share Tech Mono', monospace;
+      gap: 10px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
     }
 
     .form-control {
-      width: 100%;
-      padding: 0.5rem;
-      background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
-      box-sizing: border-box;
+      flex: 1;
+      padding: 10px 15px;
+      background-color: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 0, 0.3);
+      color: #ffff00;
+      border-radius: 4px;
       font-family: 'Share Tech Mono', monospace;
-      font-size: 0.9rem;
+      position: relative;
+      z-index: 2;
     }
 
     .form-control::placeholder {
-      color: rgba(255, 255, 255, 0.5);
-      font-family: 'Share Tech Mono', monospace;
+      color: rgba(255, 255, 0, 0.5);
     }
 
     .btn-submit {
-      padding: 0.4rem;
-      width: 120px;
-      margin: 0 auto;
-      background-color: rgba(0, 0, 0, 0.75);
-      border: 2px solid #ffffff;
-      color: white;
+      padding: 10px 20px;
+      background-color: transparent;
+      border: 1px solid #ffff00;
+      color: #ffff00;
       cursor: pointer;
       font-family: 'Share Tech Mono', monospace;
-      font-size: 0.85rem;
       transition: all 0.3s ease;
       border-radius: 4px;
+      text-shadow: 0 0 5px #ffff00;
+      position: relative;
+      z-index: 2;
     }
 
     .btn-submit:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      border-color: #ffffff;
+      background-color: rgba(255, 255, 0, 0.1);
+      transform: scale(1.05);
     }
 
     .error-message,
     .success-message {
-      font-size: 0.85rem;
-      margin: 0;
-      font-family: 'Share Tech Mono', monospace;
-    }
-
-    .success-message {
-      text-align: center;
-      color: white;
-      font-family: 'Share Tech Mono', monospace;
-      font-weight: normal;
+      position: relative;
+      z-index: 2;
     }
 
     .error-message {
       color: #ff4444;
-      text-align: center;
+      background-color: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.3);
+    }
+
+    .success-message {
+      color: #ffff00;
+      background-color: rgba(255, 255, 0, 0.1);
+      border: 1px solid rgba(255, 255, 0, 0.3);
     }
 
     .modal {
@@ -411,55 +332,44 @@ import { PyService } from "../../services/py.service"
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(0, 0, 0, 0.8);
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      backdrop-filter: blur(5px);
     }
 
     .modal-content {
-      background-color: rgba(0, 0, 0, 0.2);
+      background-color: rgba(0, 0, 0, 0.9);
       border: 1px solid #ffff00;
-      border-radius: 10px;
-      padding: 2rem;
+      border-radius: 8px;
+      padding: 20px;
       max-width: 500px;
       width: 90%;
       color: #ffff00;
-      box-shadow: 0 0 30px rgba(255, 255, 0, 0.3);
-      backdrop-filter: blur(5px);
-      z-index: 1001;
     }
 
     .close-btn {
-      margin-top: 1rem;
+      margin-top: 15px;
       padding: 8px 16px;
       background-color: transparent;
-      border: 1px solid #00a2ff;
-      color: #00a2ff;
+      border: 1px solid #ffff00;
+      color: #ffff00;
       cursor: pointer;
       font-family: 'Share Tech Mono', monospace;
       transition: all 0.3s ease;
-      border-radius: 5px;
+      border-radius: 4px;
       width: 100%;
-      text-shadow: 0 0 5px #00a2ff;
     }
 
     .close-btn:hover {
-      background-color: #00a2ff;
-      color: #000000;
-      box-shadow: 0 0 20px #00a2ff,
-                  0 0 40px #00a2ff,
-                  0 0 60px #00a2ff;
+      background-color: rgba(255, 255, 0, 0.1);
       transform: scale(1.05);
-      text-shadow: none;
     }
 
     .modal-content.final-modal {
       text-align: center;
       max-width: 400px;
-      background-color: rgba(0, 0, 0, 0.2);
     }
 
     .final-modal h2 {
@@ -469,21 +379,23 @@ import { PyService } from "../../services/py.service"
     }
 
     .final-modal .creator {
-      color: #00a2ff;
+      color: #ffff00;
       font-size: 1rem;
       margin-top: 1rem;
       font-style: italic;
+      opacity: 0.8;
     }
-  `],
+    `
+  ],
 })
-export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
+export class PyComponent implements OnInit, AfterViewInit {
   @ViewChild('matrixCanvas') matrixCanvas!: ElementRef<HTMLCanvasElement>;
-  private isBrowser: boolean;
   private animationFrameId: number | null = null;
-  private matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
+  private matrixChars = "01";
   private matrixDrops: number[] = [];
-  private matrixFontSize = 10;
+  private matrixFontSize = 12;
   private matrixColumns = 0;
+  private isBrowser: boolean;
 
   cards = [
     {
@@ -491,42 +403,42 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
       unlocked: true,
       message: '',
       isSuccess: false,
-      longDescription: 'Level 1: Basic Python syntax and variables'
+      longDescription: 'Nivel 1: Sintaxis básica y variables en Python'
     },
     {
       id: 2,
       unlocked: false,
       message: '',
       isSuccess: false,
-      longDescription: 'Level 2: Control structures and loops'
+      longDescription: 'Nivel 2: Estructuras de control y bucles'
     },
     {
       id: 3,
       unlocked: false,
       message: '',
       isSuccess: false,
-      longDescription: 'Level 3: Functions and modules'
+      longDescription: 'Nivel 3: Funciones y módulos'
     },
     {
       id: 4,
       unlocked: false,
       message: '',
       isSuccess: false,
-      longDescription: 'Level 4: Object-oriented programming'
+      longDescription: 'Nivel 4: Programación orientada a objetos'
     },
     {
       id: 5,
       unlocked: false,
       message: '',
       isSuccess: false,
-      longDescription: 'Level 5: File handling and exceptions'
+      longDescription: 'Nivel 5: Manejo de archivos y excepciones'
     },
     {
       id: 6,
       unlocked: false,
       message: '',
       isSuccess: false,
-      longDescription: 'Level 6: Advanced Python concepts'
+      longDescription: 'Nivel 6: Conceptos avanzados de Python'
     }
   ];
 
@@ -556,12 +468,6 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    if (this.isBrowser && this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
-  }
-
   private startMatrixAnimation(): void {
     const canvas = this.matrixCanvas.nativeElement;
     const ctx = canvas.getContext('2d');
@@ -585,7 +491,7 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Color y fuente del texto
-      ctx.fillStyle = '#0F0';
+      ctx.fillStyle = '#ffff00';
       ctx.font = this.matrixFontSize + 'px monospace';
 
       // Dibujar los caracteres
@@ -633,6 +539,7 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.codeInput) {
       this.errorMessage = "Por favor ingresa un código";
       return;
+      
     }
 
     const nextLevel = this.pyService.validatePyCode(this.codeInput);
