@@ -10,4 +10,4 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideHttpClient()
   ],
-}
+} 
