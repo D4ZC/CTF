@@ -49,10 +49,4 @@ export class PyService {
   isLevelUnlocked(level: number): boolean {
     return this.unlockedLevels.has(level);
   }
-
-  // Reset all progress
-  resetProgress(): void {
-    this.unlockedLevels = new Set<number>([1]);
-    this.isGameCompleted = false;
-  }
 }

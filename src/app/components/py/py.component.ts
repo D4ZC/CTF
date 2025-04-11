@@ -677,36 +677,47 @@ if __name__ == "__main__":
       return;
     }
 
-    try {
-      const content = this.pyFilesService.getFileContent(card.id);
-      if (!content) {
-        card.message = 'Error: File content is empty.';
-        card.isSuccess = false;
-        return;
-      }
+    card.message = 'Downloading...';
+    card.isSuccess = false;
 
-      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `exercise_${card.id}.py`;
-      a.style.display = 'none';
-      
-      document.body.appendChild(a);
-      a.click();
-      
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        card.message = 'Download completed!';
-        card.isSuccess = true;
-      }, 100);
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      card.message = 'Error creating download. Please try again.';
-      card.isSuccess = false;
-    }
+    this.pyFilesService.getFileContent(card.id).subscribe({
+      next: (content) => {
+        if (!content) {
+          card.message = 'Error: File content is empty.';
+          card.isSuccess = false;
+          return;
+        }
+
+        try {
+          const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `exercise_${card.id}.py`;
+          a.style.display = 'none';
+          
+          document.body.appendChild(a);
+          a.click();
+          
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            card.message = 'Download completed!';
+            card.isSuccess = true;
+          }, 100);
+        } catch (error) {
+          console.error('Error creating download:', error);
+          card.message = 'Error creating download. Please try again.';
+          card.isSuccess = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error downloading file:', error);
+        card.message = 'Error downloading file. Please try again.';
+        card.isSuccess = false;
+      }
+    });
   }
 
   showInfo(card: any): void {
