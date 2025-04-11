@@ -51,6 +51,8 @@ import { DecoService } from "../../services/deco.services"
   `,
   styles: [
     `
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
     :host {
       font-family: 'Courier Prime', monospace;
       display: block;
@@ -76,6 +78,45 @@ import { DecoService } from "../../services/deco.services"
       z-index: 0;
     }
 
+    @keyframes neonTitle {
+      0% {
+        text-shadow: 0 0 5px #e600ff,
+                     0 0 10px #e600ff,
+                     0 0 15px #e600ff,
+                     0 0 20px #e600ff,
+                     0 0 25px #e600ff;
+        opacity: 1;
+      }
+      25% {
+        text-shadow: 0 0 10px #e600ff,
+                     0 0 20px #e600ff,
+                     0 0 30px #e600ff,
+                     0 0 40px #e600ff,
+                     0 0 50px #e600ff;
+        opacity: 1;
+      }
+      50% {
+        text-shadow: none;
+        opacity: 0.3;
+      }
+      75% {
+        text-shadow: 0 0 10px #e600ff,
+                     0 0 20px #e600ff,
+                     0 0 30px #e600ff,
+                     0 0 40px #e600ff,
+                     0 0 50px #e600ff;
+        opacity: 1;
+      }
+      100% {
+        text-shadow: 0 0 5px #e600ff,
+                     0 0 10px #e600ff,
+                     0 0 15px #e600ff,
+                     0 0 20px #e600ff,
+                     0 0 25px #e600ff;
+        opacity: 1;
+      }
+    }
+
     header {
       height: 15%;
       width: 100%;
@@ -85,12 +126,19 @@ import { DecoService } from "../../services/deco.services"
       align-items: center;
       position: relative;
       z-index: 1;
+      padding: 20px;
+      margin-bottom: 40px;
     }
 
     h1 {
-      color: white;
+      color: #e600ff;
       margin: 0;
-      font-family: 'Courier Prime', monospace;
+      font-size: 2.5rem;
+      animation: neonTitle 3s infinite;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
     }
 
     .back-btn {
@@ -172,6 +220,12 @@ import { DecoService } from "../../services/deco.services"
       border: none;
       cursor: pointer;
       position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .code-block:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 45px rgba(255, 102, 245, 0.8);
     }
 
     .code-block a {
@@ -319,31 +373,49 @@ export class DecoComponent implements OnInit, AfterViewInit {
       case 'A3g9D':
         this.isSuccess = true;
         this.resultMessage = "1ra parte de tu código: P3";
+        setTimeout(() => {
+          this.resultMessage = "";
+        }, 5000);
         break;
       
       case 'xP7tL':
         this.isSuccess = true;
         this.resultMessage = "2da parte de tu código: rQ";
+        setTimeout(() => {
+          this.resultMessage = "";
+        }, 5000);
         break;
       
       case 'M2qZ4':
         this.isSuccess = true;
         this.resultMessage = "3ra parte de tu código: 7b";
+        setTimeout(() => {
+          this.resultMessage = "";
+        }, 5000);
         break;
       
       case 'nV5uK':
         this.isSuccess = true;
         this.resultMessage = "4ta parte de tu código: T1";
+        setTimeout(() => {
+          this.resultMessage = "";
+        }, 5000);
         break;
       
       case 'B8wE1':
         this.isSuccess = true;
         this.resultMessage = "5ta parte de tu código: uF";
+        setTimeout(() => {
+          this.resultMessage = "";
+        }, 5000);
         break;
       
       default:
         this.isSuccess = false;
         this.resultMessage = "Código inválido";
+        setTimeout(() => {
+          this.resultMessage = "";
+        }, 5000);
         break;
     }
   }
