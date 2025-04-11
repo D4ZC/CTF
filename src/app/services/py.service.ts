@@ -18,34 +18,41 @@ export class PyService {
     level6: CryptoJS.SHA256("P4strY4F4nT").toString(),
   }
 
-  constructor() {}
+  constructor() {
+    // Initialize with default values
+    this.unlockedLevels = new Set<number>([1]);
+    this.isGameCompleted = false;
+  }
 
   // Validate a Python code and return the unlocked level if valid
   validatePyCode(code: string): number | null {
-    if (code === this.level1Flag) return 2
-    const hashedCode = CryptoJS.SHA256(code).toString()
+    if (code === this.level1Flag) return 2;
+    const hashedCode = CryptoJS.SHA256(code).toString();
     for (const [level, hash] of Object.entries(this.levelCodes)) {
       if (hashedCode === hash) {
-        const levelNum = parseInt(level.replace('level', ''))
-        return levelNum + 1
+        const levelNum = parseInt(level.replace('level', ''));
+        return levelNum + 1;
       }
     }
-    return null
+    return null;
   }
 
   // Unlock a Python level
   unlockLevel(level: number): void {
-    this.unlockedLevels.add(level)
+    this.unlockedLevels.add(level);
+    if (level === 7) {
+      this.isGameCompleted = true;
+    }
   }
 
   // Check if a Python level is unlocked
   isLevelUnlocked(level: number): boolean {
-    return this.unlockedLevels.has(level)
+    return this.unlockedLevels.has(level);
   }
 
   // Reset all progress
   resetProgress(): void {
-    this.unlockedLevels = new Set<number>([1])
-    this.isGameCompleted = false
+    this.unlockedLevels = new Set<number>([1]);
+    this.isGameCompleted = false;
   }
 }
