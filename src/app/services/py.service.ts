@@ -7,6 +7,7 @@ import * as CryptoJS from "crypto-js"
 export class PyService {
   private unlockedLevels = new Set<number>([1]) // Level 1 is unlocked by default
   private isGameCompleted = false
+  private storage: Storage | null = null
 
   // Flag for level 1 and encrypted codes for other levels
   private readonly level1Flag = 'py7h0n_b3g1n'
@@ -19,47 +20,52 @@ export class PyService {
   }
 
   constructor() {
-    // Check if game was completed previously
-    this.isGameCompleted = localStorage.getItem("pyGameCompleted") === "true"
-    
-    // Only load saved progress if game wasn't completed
-    if (!this.isGameCompleted) {
-      const levels = localStorage.getItem("pyUnlockedLevels")
-      if (levels) {
-        const parsedLevels = JSON.parse(levels)
-        parsedLevels.forEach((level: number) => this.unlockedLevels.add(level))
+    // Check if storage is available
+    try {
+      this.storage = window.sessionStorage
+      // Check if game was completed previously
+      this.isGameCompleted = this.storage.getItem("pyGameCompleted") === "true"
+      
+      // Only load saved progress if game wasn't completed
+      if (!this.isGameCompleted) {
+        const levels = this.storage.getItem("pyUnlockedLevels")
+        if (levels) {
+          const parsedLevels = JSON.parse(levels)
+          parsedLevels.forEach((level: number) => this.unlockedLevels.add(level))
+        }
+      } else {
+        // If game was completed, reset everything
+        this.resetProgress()
       }
-    } else {
-      // If game was completed, reset everything
-      this.resetProgress()
+    } catch (e) {
+      // If storage is not available, use default values
+      console.warn('Storage not available, using default values')
+      this.storage = null
     }
   }
 
-  // Validate Python level code
+  // Validate a Python code and return the unlocked level if valid
   validatePyCode(code: string): number | null {
-    // Check level 1 flag
-    if (code === this.level1Flag) return 2 // Returns 2 because it unlocks level 2
-
+    if (code === this.level1Flag) return 2
     const hashedCode = CryptoJS.SHA256(code).toString()
-
-    if (hashedCode === this.levelCodes.level2) return 3
-    if (hashedCode === this.levelCodes.level3) return 4
-    if (hashedCode === this.levelCodes.level4) return 5
-    if (hashedCode === this.levelCodes.level5) return 6
-    if (hashedCode === this.levelCodes.level6) {
-      // Mark game as completed when last level is solved
-      this.markGameAsCompleted()
-      return 7 // 7 indicates completion of all levels
+    for (const [level, hash] of Object.entries(this.levelCodes)) {
+      if (hashedCode === hash) {
+        const levelNum = parseInt(level.replace('level', ''))
+        return levelNum + 1
+      }
     }
-
     return null
   }
 
   // Unlock a Python level
   unlockLevel(level: number): void {
     this.unlockedLevels.add(level)
-    if (!this.isGameCompleted) {
-      localStorage.setItem("pyUnlockedLevels", JSON.stringify(Array.from(this.unlockedLevels)))
+    if (!this.isGameCompleted && this.storage) {
+      try {
+        this.storage.setItem("pyUnlockedLevels", JSON.stringify(Array.from(this.unlockedLevels)))
+      } catch (e) {
+        console.warn('Failed to save progress to storage')
+      }
     }
   }
 
@@ -71,16 +77,28 @@ export class PyService {
   // Mark game as completed and trigger reset
   private markGameAsCompleted(): void {
     this.isGameCompleted = true
-    localStorage.setItem("pyGameCompleted", "true")
-    // Clear unlocked levels from storage
-    localStorage.removeItem("pyUnlockedLevels")
+    if (this.storage) {
+      try {
+        this.storage.setItem("pyGameCompleted", "true")
+        // Clear unlocked levels from storage
+        this.storage.removeItem("pyUnlockedLevels")
+      } catch (e) {
+        console.warn('Failed to save game completion status')
+      }
+    }
   }
 
   // Reset all progress
   resetProgress(): void {
     this.unlockedLevels = new Set<number>([1])
     this.isGameCompleted = false
-    localStorage.removeItem("pyUnlockedLevels")
-    localStorage.removeItem("pyGameCompleted")
+    if (this.storage) {
+      try {
+        this.storage.removeItem("pyUnlockedLevels")
+        this.storage.removeItem("pyGameCompleted")
+      } catch (e) {
+        console.warn('Failed to reset progress in storage')
+      }
+    }
   }
 }
