@@ -1,8 +1,10 @@
-import { Component, type OnInit, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, Inject } from "@angular/core"
+import { Component, type OnInit, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, Inject, NgZone } from "@angular/core"
 import { CommonModule, isPlatformBrowser } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
 import { PyService } from "../../services/py.service"
+import { MatrixService } from "../../services/matrix.service"
+import { PyFilesService } from "../../services/py-files.service"
 
 @Component({
   selector: "app-py",
@@ -494,10 +496,6 @@ import { PyService } from "../../services/py.service"
 })
 export class PyComponent implements OnInit, AfterViewInit {
   @ViewChild('matrixCanvas') matrixCanvas!: ElementRef<HTMLCanvasElement>;
-  private ctx!: CanvasRenderingContext2D;
-  private columns: number[] = [];
-  private fontSize = 14;
-  private animationFrameId: number | null = null;
   private isBrowser: boolean;
 
   cards = [
@@ -507,7 +505,16 @@ export class PyComponent implements OnInit, AfterViewInit {
       codeInput: '',
       message: '',
       isSuccess: false,
-      longDescription: 'Level 1: Basic Python syntax and variables'
+      longDescription: 'Level 1: Basic Python syntax and variables',
+      content: `# Exercise 1
+# Created by NanoIUTU
+
+def main():
+    # Your code here
+    pass
+
+if __name__ == "__main__":
+    main()`
     },
     {
       id: 2,
@@ -515,7 +522,16 @@ export class PyComponent implements OnInit, AfterViewInit {
       codeInput: '',
       message: '',
       isSuccess: false,
-      longDescription: 'Level 2: Control structures and loops'
+      longDescription: 'Level 2: Control structures and loops',
+      content: `# Exercise 2
+# Created by NanoIUTU
+
+def main():
+    # Your code here
+    pass
+
+if __name__ == "__main__":
+    main()`
     },
     {
       id: 3,
@@ -523,7 +539,16 @@ export class PyComponent implements OnInit, AfterViewInit {
       codeInput: '',
       message: '',
       isSuccess: false,
-      longDescription: 'Level 3: Functions and modules'
+      longDescription: 'Level 3: Functions and modules',
+      content: `# Exercise 3
+# Created by NanoIUTU
+
+def main():
+    # Your code here
+    pass
+
+if __name__ == "__main__":
+    main()`
     },
     {
       id: 4,
@@ -531,7 +556,16 @@ export class PyComponent implements OnInit, AfterViewInit {
       codeInput: '',
       message: '',
       isSuccess: false,
-      longDescription: 'Level 4: Object-oriented programming'
+      longDescription: 'Level 4: Object-oriented programming',
+      content: `# Exercise 4
+# Created by NanoIUTU
+
+def main():
+    # Your code here
+    pass
+
+if __name__ == "__main__":
+    main()`
     },
     {
       id: 5,
@@ -539,7 +573,16 @@ export class PyComponent implements OnInit, AfterViewInit {
       codeInput: '',
       message: '',
       isSuccess: false,
-      longDescription: 'Level 5: File handling and exceptions'
+      longDescription: 'Level 5: File handling and exceptions',
+      content: `# Exercise 5
+# Created by NanoIUTU
+
+def main():
+    # Your code here
+    pass
+
+if __name__ == "__main__":
+    main()`
     },
     {
       id: 6,
@@ -547,7 +590,16 @@ export class PyComponent implements OnInit, AfterViewInit {
       codeInput: '',
       message: '',
       isSuccess: false,
-      longDescription: 'Level 6: Advanced Python concepts'
+      longDescription: 'Level 6: Advanced Python concepts',
+      content: `# Exercise 6
+# Created by NanoIUTU
+
+def main():
+    # Your code here
+    pass
+
+if __name__ == "__main__":
+    main()`
     }
   ];
 
@@ -558,7 +610,10 @@ export class PyComponent implements OnInit, AfterViewInit {
 
   constructor(
     private pyService: PyService,
+    private matrixService: MatrixService,
+    private pyFilesService: PyFilesService,
     private router: Router,
+    private ngZone: NgZone,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -570,56 +625,15 @@ export class PyComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (this.isBrowser) {
-      this.startMatrixAnimation();
+      this.ngZone.runOutsideAngular(() => {
+        this.matrixService.startAnimation(this.matrixCanvas.nativeElement);
+      });
     }
   }
 
-  private startMatrixAnimation(): void {
-    if (!this.isBrowser) return;
-
-    const canvas = this.matrixCanvas.nativeElement;
-    this.ctx = canvas.getContext('2d')!;
-    this.resizeCanvas();
-
-    const drawBinary = () => {
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-      this.ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      this.ctx.fillStyle = '#0F0';
-      this.ctx.font = this.fontSize + 'px monospace';
-
-      for (let i = 0; i < this.columns.length; i++) {
-        const text = Math.random() > 0.5 ? '1' : '0';
-        const x = i * this.fontSize;
-        const y = this.columns[i] * this.fontSize;
-
-        this.ctx.fillText(text, x, y);
-
-        if (y > canvas.height && Math.random() > 0.975) {
-          this.columns[i] = 0;
-        } else {
-          this.columns[i]++;
-        }
-      }
-
-      this.animationFrameId = requestAnimationFrame(drawBinary);
-    };
-
-    drawBinary();
-  }
-
-  private resizeCanvas(): void {
-    if (!this.isBrowser) return;
-
-    const canvas = this.matrixCanvas.nativeElement;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    this.columns = Array(Math.floor(canvas.width / this.fontSize)).fill(0);
-  }
-
   ngOnDestroy(): void {
-    if (this.isBrowser && this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
+    if (this.isBrowser) {
+      this.matrixService.stopAnimation();
     }
   }
 
@@ -657,27 +671,53 @@ export class PyComponent implements OnInit, AfterViewInit {
   }
 
   downloadPyFile(card: any): void {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser) {
+      card.message = 'Download not available in this environment.';
+      card.isSuccess = false;
+      return;
+    }
 
-    const content = `# Exercise ${card.id}
-# Created by NanoIUTU
+    card.message = 'Downloading...';
+    card.isSuccess = true;
 
-def main():
-    # Your code here
-    pass
+    this.pyFilesService.getFileContent(card.id).subscribe({
+      next: (content) => {
+        if (!content) {
+          card.message = 'Error: File content is empty.';
+          card.isSuccess = false;
+          return;
+        }
 
-if __name__ == "__main__":
-    main()`;
-
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `exercise_${card.id}.py`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+        try {
+          const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `exercise_${card.id}.py`;
+          a.style.display = 'none';
+          
+          document.body.appendChild(a);
+          a.click();
+          
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            card.message = 'Download completed!';
+            card.isSuccess = true;
+          }, 100);
+        } catch (error) {
+          console.error('Error downloading file:', error);
+          card.message = 'Error creating download. Please try again.';
+          card.isSuccess = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading file:', error);
+        card.message = 'Error loading file. Please try again.';
+        card.isSuccess = false;
+      }
+    });
   }
 
   showInfo(card: any): void {
