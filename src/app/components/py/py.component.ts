@@ -271,12 +271,12 @@ export class PyComponent implements OnInit {
   // Download Python file
   downloadPyFile(card: any): void {
     if (card.unlocked) {
-      const link = document.createElement("a")
-      link.href = `assets/py/${card.filename}`
-      link.download = card.filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const link = document.createElement('a');
+      link.href = `assets/py/${card.id}.py`;
+      link.download = `${card.id}.py`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   }
 }
