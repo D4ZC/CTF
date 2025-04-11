@@ -1,5 +1,5 @@
-import { Component, type OnInit, ViewChild, ElementRef, AfterViewInit } from "@angular/core"
-import { CommonModule } from "@angular/common"
+import { Component, type OnInit, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, Inject } from "@angular/core"
+import { CommonModule, isPlatformBrowser } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
 import { PyService } from "../../services/py.service"
@@ -498,336 +498,195 @@ export class PyComponent implements OnInit, AfterViewInit {
   private columns: number[] = [];
   private fontSize = 14;
   private animationFrameId: number | null = null;
+  private isBrowser: boolean;
 
   cards = [
     {
       id: 1,
-      title: "Exercise 1",
-      description: "Introduction to Python",
-      longDescription: "Run the runme.py script to get the flag. Download the script with your browser or with wget in the webshell.",
       unlocked: true,
-      filename: "1.py",
-      codeInput: "",
-      message: "",
-      isSuccess: false
+      codeInput: '',
+      message: '',
+      isSuccess: false,
+      longDescription: 'Level 1: Basic Python syntax and variables'
     },
     {
       id: 2,
-      title: "Exercise 2",
-      description: "String Manipulation",
-      longDescription: "Fix the syntax error in this Python script to print the flag.",
       unlocked: false,
-      filename: "2.py",
-      codeInput: "",
-      message: "",
-      isSuccess: false
+      codeInput: '',
+      message: '',
+      isSuccess: false,
+      longDescription: 'Level 2: Control structures and loops'
     },
     {
       id: 3,
-      title: "Exercise 3",
-      description: "Data Structures",
-      longDescription: "Fix the syntax error in this Python script to print the flag.",
       unlocked: false,
-      filename: "3.py",
-      codeInput: "",
-      message: "",
-      isSuccess: false
+      codeInput: '',
+      message: '',
+      isSuccess: false,
+      longDescription: 'Level 3: Functions and modules'
     },
     {
       id: 4,
-      title: "Exercise 4",
-      description: "Functions and Modules",
-      longDescription: "Run the Python script and convert the given number from decimal to binary to get the flag. Note: There are multiple exercises in this one.",
       unlocked: false,
-      filename: "4.py",
-      codeInput: "",
-      message: "",
-      isSuccess: false
+      codeInput: '',
+      message: '',
+      isSuccess: false,
+      longDescription: 'Level 4: Object-oriented programming'
     },
     {
       id: 5,
-      title: "Exercise 5",
-      description: "File Handling",
-      longDescription: "Run the Python script code.py in the same directory as respuestas.txt.\nClick the download button to get both required files:\n- code.py\n- respuestas.txt",
       unlocked: false,
-      filename: "5.py",
-      codeInput: "",
-      message: "",
-      isSuccess: false
+      codeInput: '',
+      message: '',
+      isSuccess: false,
+      longDescription: 'Level 5: File handling and exceptions'
     },
     {
       id: 6,
-      title: "Exercise 6",
-      description: "Advanced Exploitation",
-      longDescription: "Can you get the flag?\nReverse engineer this Python program.",
       unlocked: false,
-      filename: "6.py",
-      codeInput: "",
-      message: "",
-      isSuccess: false
+      codeInput: '',
+      message: '',
+      isSuccess: false,
+      longDescription: 'Level 6: Advanced Python concepts'
     }
-  ]
+  ];
 
-  showInfoModal = false
-  selectedCard: any = null
-  headerText = "Py7h0n_3xp10t471on"
-  completedCodes: string[] = []
+  showInfoModal = false;
+  selectedCard: any = null;
+  headerText = "Py7h0n_3xp10t471on";
   showFinalModal = false;
 
   constructor(
     private pyService: PyService,
     private router: Router,
-  ) {}
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
-    this.updateUnlockedLevels()
+    this.updateUnlockedLevels();
   }
 
   ngAfterViewInit(): void {
-    const canvas = this.matrixCanvas.nativeElement;
-    this.ctx = canvas.getContext('2d')!;
-    this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
-    this.startMatrixAnimation();
-
-    // Add binary rain background
-    const binaryCanvas = document.createElement('canvas');
-    binaryCanvas.style.position = 'absolute';
-    binaryCanvas.style.top = '0';
-    binaryCanvas.style.left = '0';
-    binaryCanvas.style.width = '100%';
-    binaryCanvas.style.height = '100%';
-    binaryCanvas.style.zIndex = '-1';
-    
-    const parentElement = this.matrixCanvas.nativeElement.parentElement;
-    if (parentElement) {
-      parentElement.appendChild(binaryCanvas);
+    if (this.isBrowser) {
+      this.startMatrixAnimation();
     }
-
-    const binaryCtx = binaryCanvas.getContext('2d')!;
-    const binaryColumns: number[] = [];
-    const binaryFontSize = 14;
-
-    const resizeBinaryCanvas = () => {
-      binaryCanvas.width = window.innerWidth;
-      binaryCanvas.height = window.innerHeight;
-      binaryColumns.length = Math.floor(binaryCanvas.width / binaryFontSize);
-      binaryColumns.fill(0);
-    };
-
-    resizeBinaryCanvas();
-    window.addEventListener('resize', resizeBinaryCanvas);
-
-    const drawBinary = () => {
-      binaryCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-      binaryCtx.fillRect(0, 0, binaryCanvas.width, binaryCanvas.height);
-
-      binaryCtx.fillStyle = '#00FF00';
-      binaryCtx.font = `${binaryFontSize}px monospace`;
-
-      for (let i = 0; i < binaryColumns.length; i++) {
-        const text = Math.random() < 0.5 ? '0' : '1';
-        const x = i * binaryFontSize;
-        const y = binaryColumns[i] * binaryFontSize;
-        const opacity = Math.random() * 0.5 + 0.5;
-        binaryCtx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
-        binaryCtx.fillText(text, x, y);
-
-        if (y > binaryCanvas.height && Math.random() > 0.98) {
-          binaryColumns[i] = 0;
-        }
-        binaryColumns[i]++;
-      }
-
-      requestAnimationFrame(drawBinary);
-    };
-
-    drawBinary();
-  }
-
-  private resizeCanvas(): void {
-    const canvas = this.matrixCanvas.nativeElement;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    this.columns = Array(Math.floor(canvas.width / this.fontSize)).fill(0);
   }
 
   private startMatrixAnimation(): void {
+    if (!this.isBrowser) return;
+
     const canvas = this.matrixCanvas.nativeElement;
+    this.ctx = canvas.getContext('2d')!;
+    this.resizeCanvas();
+
     const drawBinary = () => {
-      // Add a semi-transparent black layer to create fade effect
       this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw the binary numbers
+      this.ctx.fillStyle = '#0F0';
+      this.ctx.font = this.fontSize + 'px monospace';
+
       for (let i = 0; i < this.columns.length; i++) {
-        const text = Math.random() < 0.5 ? '0' : '1';
+        const text = Math.random() > 0.5 ? '1' : '0';
         const x = i * this.fontSize;
         const y = this.columns[i] * this.fontSize;
-        
-        // Alternate between yellow and blue colors
-        const isYellow = i % 2 === 0;
-        const opacity = Math.random() * 0.7 + 0.3; // Increased opacity range
-        this.ctx.fillStyle = isYellow 
-          ? `rgba(255, 255, 0, ${opacity})`
-          : `rgba(0, 162, 255, ${opacity})`;
-        
-        this.ctx.font = `${this.fontSize}px 'Share Tech Mono', monospace`;
+
         this.ctx.fillText(text, x, y);
 
-        // Reset column or move it down
-        if (y > canvas.height && Math.random() > 0.98) {
+        if (y > canvas.height && Math.random() > 0.975) {
           this.columns[i] = 0;
+        } else {
+          this.columns[i]++;
         }
-        this.columns[i]++;
       }
 
-      // Continue animation
       this.animationFrameId = requestAnimationFrame(drawBinary);
     };
 
     drawBinary();
   }
 
+  private resizeCanvas(): void {
+    if (!this.isBrowser) return;
+
+    const canvas = this.matrixCanvas.nativeElement;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    this.columns = Array(Math.floor(canvas.width / this.fontSize)).fill(0);
+  }
+
   ngOnDestroy(): void {
-    if (this.animationFrameId) {
+    if (this.isBrowser && this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
-    window.removeEventListener('resize', () => this.resizeCanvas());
   }
 
   goBack(): void {
-    this.router.navigate(["/dir"])
+    this.router.navigate(['/']);
   }
 
   updateUnlockedLevels(): void {
-    for (let i = 1; i <= 6; i++) {
-      if (this.pyService.isLevelUnlocked(i)) {
-        this.cards[i - 1].unlocked = true
-      }
-    }
+    this.cards.forEach(card => {
+      card.unlocked = this.pyService.isLevelUnlocked(card.id);
+    });
   }
 
   validateCode(card: any): void {
-    card.message = ""
-    
-    // Check if previous level is completed (except for level 1)
-    if (card.id > 1 && !this.cards[card.id - 2].unlocked) {
-      card.isSuccess = false
-      card.message = "Invalid code"
-      return
-    }
-    
-    // Check if this level is already completed
-    if (card.id < 6 && this.cards[card.id].unlocked) {
-      card.isSuccess = false
-      card.message = "Invalid code"
-      return
-    }
+    if (!card.codeInput) return;
 
-    if (!card.codeInput.trim()) {
-      card.isSuccess = false
-      card.message = "Invalid code"
-      return
-    }
-
-    const unlockedLevel = this.pyService.validatePyCode(card.codeInput)
-
-    if (unlockedLevel) {
-      // Special case for the final code (level 7) - only works on the last card
-      if (unlockedLevel === 7) {
-        if (card.id !== 6) {
-          card.isSuccess = false
-          card.message = "Invalid code"
-          return
-        }
-        this.headerText = "dZ4hW6cV9G"
-        // Lock all exercises
-        this.cards.forEach((c) => {
-          c.unlocked = false
-          c.codeInput = ""
-          c.message = ""
-        })
-        // Keep the last exercise locked
-        card.unlocked = false
-        this.completedCodes = []
-        // Show the final modal
-        this.showFinalModal = true
-      } else if (unlockedLevel === card.id + 1) {
-        this.pyService.unlockLevel(unlockedLevel)
-        this.cards[unlockedLevel - 1].unlocked = true
-        card.isSuccess = true
-        card.message = "Correct! Next exercise unlocked!"
-        this.completedCodes.push(card.codeInput)
-        // Clear the current card's input and message after 3 seconds
-        setTimeout(() => {
-          card.codeInput = ""
-          card.message = ""
-        }, 3000)
-      } else {
-        card.isSuccess = false
-        card.message = "Invalid code"
+    const nextLevel = this.pyService.validatePyCode(card.codeInput);
+    if (nextLevel) {
+      card.message = 'Success! Level unlocked!';
+      card.isSuccess = true;
+      this.pyService.unlockLevel(nextLevel);
+      this.updateUnlockedLevels();
+      
+      if (nextLevel === 7) {
+        this.showFinalModal = true;
       }
     } else {
-      card.isSuccess = false
-      card.message = "Invalid code"
+      card.message = 'Invalid code. Try again!';
+      card.isSuccess = false;
     }
   }
 
   isValidationEnabled(card: any): boolean {
-    // First level is always enabled until completed
-    if (card.id === 1) {
-      return !this.cards[1].unlocked;
-    }
-    
-    // Last level is enabled when unlocked and not completed
-    if (card.id === 6) {
-      return card.unlocked && !this.completedCodes.includes(card.codeInput);
-    }
-    
-    // For other levels, check if the card is unlocked and not completed
-    return card.unlocked && !this.cards[card.id]?.unlocked;
+    return card.unlocked;
   }
 
   downloadPyFile(card: any): void {
-    if (card.unlocked) {
-      // For exercise 5, download both files
-      if (card.id === 5) {
-        // Download 5.py
-        const link1 = document.createElement("a")
-        link1.href = `/py/${card.filename}`
-        link1.download = card.filename
-        document.body.appendChild(link1)
-        link1.click()
-        document.body.removeChild(link1)
+    if (!this.isBrowser) return;
 
-        // Download respuestas.txt
-        const link2 = document.createElement("a")
-        link2.href = `/py/respuestas.txt`
-        link2.download = "respuestas.txt"
-        document.body.appendChild(link2)
-        link2.click()
-        document.body.removeChild(link2)
-      } else {
-        // For other exercises, download only the Python file
-        const link = document.createElement("a")
-        link.href = `/py/${card.filename}`
-        link.download = card.filename
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-      }
-    }
+    const content = `# Exercise ${card.id}
+# Created by NanoIUTU
+
+def main():
+    # Your code here
+    pass
+
+if __name__ == "__main__":
+    main()`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `exercise_${card.id}.py`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   }
 
   showInfo(card: any): void {
-    this.selectedCard = card
-    this.showInfoModal = true
+    this.selectedCard = card;
+    this.showInfoModal = true;
   }
 
   closeInfo(): void {
-    this.showInfoModal = false
-    this.selectedCard = null
+    this.showInfoModal = false;
   }
 
   closeFinalModal(): void {
