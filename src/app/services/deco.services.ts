@@ -6,11 +6,11 @@ import { Injectable } from "@angular/core"
 export class DecoService {
   // Codes for the deco challenge
   private readonly decoCodeParts = {
-    A3g9D: "mY",
-    xP7tL: "8a",
-    M2qZ4: "J5",
-    nV5uK: "zV",
-    B8wE1: "2X",
+    A3g9D: "P3",
+    xP7tL: "rQ",
+    M2qZ4: "7b",
+    nV5uK: "T1",
+    B8wE1: "uF",
   }
 
   validateDecoCode(code: string): string | null {
