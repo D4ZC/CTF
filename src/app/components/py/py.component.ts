@@ -3,8 +3,6 @@ import { CommonModule, isPlatformBrowser } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
 import { PyService } from "../../services/py.service"
-import { HttpClient } from "@angular/common/http"
-import { Observable, catchError, of } from "rxjs"
 
 @Component({
   selector: "app-py",
@@ -650,64 +648,24 @@ export class PyComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  downloadPyFile(card: any): void {
-    if (!this.isBrowser) {
-      card.message = 'Download not available in this environment.';
-      card.isSuccess = false;
-      return;
-    }
-
-    card.message = 'Downloading...';
-    card.isSuccess = false;
-
-    // Obtener el archivo desde assets/py
-    this.getFileContent(card.id).subscribe({
-      next: (content: string) => {
-        if (!content) {
-          card.message = 'Error: File content is empty.';
-          card.isSuccess = false;
-          return;
-        }
-
-        try {
-          const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-          const url = URL.createObjectURL(blob);
-          
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `exercise_${card.id}.py`;
-          a.style.display = 'none';
-          
-          document.body.appendChild(a);
-          a.click();
-          
-          setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            card.message = 'Download completed!';
-            card.isSuccess = true;
-          }, 100);
-        } catch (error: any) {
-          console.error('Error creating download:', error);
-          card.message = 'Error creating download. Please try again.';
-          card.isSuccess = false;
-        }
-      },
-      error: (error: any) => {
-        console.error('Error downloading file:', error);
-        card.message = 'Error downloading file. Please try again.';
-        card.isSuccess = false;
-      }
-    });
+  private getFileContent(id: number): string {
+    // Implementar la lógica para obtener el contenido del archivo
+    return '';
   }
 
-  private getFileContent(id: number): Observable<string> {
-    if (!this.isBrowser) {
-      return of('');
+  downloadPyFile(card: any): void {
+    const content = this.getFileContent(card.id);
+    if (content) {
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `exercise_${card.id}.py`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     }
-    
-    // Usar la ruta relativa correcta para assets
-    return this.getFileContent(id);
   }
 
   showInfo(card: any): void {
