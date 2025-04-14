@@ -1,8 +1,9 @@
-import { Component, type OnInit } from "@angular/core"
-import { CommonModule } from "@angular/common"
+import { Component, type OnInit, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, Inject } from "@angular/core"
+import { CommonModule, isPlatformBrowser } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
 import { PyService } from "../../services/py.service"
+import * as CryptoJS from 'crypto-js'
 
 @Component({
   selector: "app-py",
@@ -10,36 +11,77 @@ import { PyService } from "../../services/py.service"
   imports: [CommonModule, FormsModule],
   template: `
     <div class="py-container">
+      <canvas #matrixCanvas class="matrix-canvas"></canvas>
       <header>
-        <button class="back-btn" (click)="goBack()">Volver</button>
-        <h1>Py7h0n_3xp10t471on</h1>
+        <button class="back-btn" (click)="goBack()">← Volver</button>
+        <h1>{{ headerText }}</h1>
       </header>
       <main>
-        <div class="cards-container">
+        <div class="exercises-grid">
           <div 
             *ngFor="let card of cards" 
-            class="card" 
-            [class.unlocked]="card.unlocked"
-            (click)="downloadPyFile(card)"
+            class="exercise-card"
+            [class.locked]="!card.unlocked"
           >
-            <h3>{{ card.title }}</h3>
-            <p>{{ card.description }}</p>
-            <div class="card-status">
-              {{ card.unlocked ? 'Desbloqueado' : 'Bloqueado' }}
+            <div class="card-header">
+              <h3>Nivel {{ card.id }}</h3>
+              <div class="lock-icon">
+                <i class="fas" [class.fa-lock]="!card.unlocked" [class.fa-lock-open]="card.unlocked"></i>
+              </div>
+            </div>
+            
+            <div class="card-actions">
+              <button 
+                class="action-btn download-btn" 
+                [disabled]="!card.unlocked"
+                (click)="downloadPyFile(card)"
+              >
+                <i class="fas fa-download"></i>
+                Descargar
+              </button>
+              <button 
+                class="action-btn info-btn"
+                (click)="showInfo(card)"
+              >
+                <i class="fas fa-info-circle"></i>
+                Info
+              </button>
+            </div>
+
+            <div *ngIf="card.message" class="message" [class.success]="card.isSuccess" [class.error]="!card.isSuccess">
+              {{ card.message }}
             </div>
           </div>
         </div>
-        
-        <div class="code-input">
-          <input 
-            type="text" 
-            [(ngModel)]="codeInput" 
-            placeholder="Ingresa tu código" 
-            class="form-control"
-          />
-          <button (click)="validateCode()" class="btn-submit">Enviar</button>
-          <div *ngIf="message" class="message" [ngClass]="{'success': isSuccess, 'error': !isSuccess}">
-            {{ message }}
+
+        <div class="code-input-container">
+          <div class="code-input">
+            <input 
+              type="text" 
+              [(ngModel)]="codeInput" 
+              placeholder="Ingresa el código de desbloqueo" 
+              class="form-control"
+              (keyup.enter)="validateCode()"
+            />
+            <button (click)="validateCode()" class="btn-submit">Validar</button>
+          </div>
+          <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+          <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+        </div>
+
+        <div *ngIf="showInfoModal" class="modal">
+          <div class="modal-content">
+            <h2>Nivel {{ selectedCard?.id }}</h2>
+            <p>{{ selectedCard?.longDescription }}</p>
+            <button class="close-btn" (click)="closeInfo()">Cerrar</button>
+          </div>
+        </div>
+
+        <div *ngIf="showFinalModal" class="modal">
+          <div class="modal-content final-modal">
+            <h2>¡Felicidades!</h2>
+            <p class="creator">Creado por NanoIUTU</p>
+            <button class="close-btn" (click)="closeFinalModal()">Cerrar</button>
           </div>
         </div>
       </main>
@@ -47,236 +89,564 @@ import { PyService } from "../../services/py.service"
   `,
   styles: [
     `
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
     :host {
-      font-family: 'Courier Prime', monospace;
+      font-family: 'Share Tech Mono', monospace;
       display: block;
       height: 100vh;
       width: 100vw;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #000;
+      overflow: hidden;
+    }
+
+    .matrix-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
     }
 
     .py-container {
-      background-color: #fff8dc; /* Light yellow/pastel */
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
       height: 100%;
+      z-index: 1;
+      background-color: transparent;
       display: flex;
       flex-direction: column;
+      color: #ffff00;
+      box-sizing: border-box;
     }
 
     header {
-      height: 15%;
+      height: 20%;
       width: 100%;
       background-color: rgba(0, 0, 0, 0.75);
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
+      border-bottom: 1px solid rgba(255, 255, 0, 0.3);
+      flex-shrink: 0;
     }
 
     h1 {
-      color: white;
+      color: #ffff00;
       margin: 0;
+      font-size: 2.5rem;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px #ffff00;
     }
 
     .back-btn {
       position: absolute;
       left: 20px;
       background-color: transparent;
-      border: 1px solid white;
-      color: white;
-      padding: 0.5rem 1rem;
+      border: 1px solid #ffff00;
+      color: #ffff00;
+      padding: 12px 24px;
       cursor: pointer;
-      font-family: 'Courier Prime', monospace;
+      font-family: 'Share Tech Mono', monospace;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      text-shadow: 0 0 5px #ffff00;
+      border-radius: 25px;
+    }
+
+    .back-btn:hover {
+      background-color: rgba(255, 255, 0, 0.1);
+      color: #ffff00;
+      transform: translateX(-5px);
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+      text-shadow: 0 0 10px #ffff00;
     }
 
     main {
-      height: 85%;
-      width: 100%;
-      padding: 2rem;
-      box-sizing: border-box;
+      position: relative;
+      padding: 20px;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 2rem;
+      overflow: hidden;
     }
 
-    .cards-container {
+    .exercises-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1.5rem;
+      padding: 10px;
+      overflow-y: auto;
+      height: 100%;
     }
 
-    .card {
-      background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid white;
-      padding: 1.5rem;
-      color: white;
-      cursor: not-allowed;
-      opacity: 0.7;
+    .exercise-card {
+      background-color: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 0, 0.3);
+      border-radius: 8px;
+      padding: 15px;
+      color: #ffff00;
       transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      backdrop-filter: blur(5px);
     }
 
-    .card.unlocked {
+    .exercise-card:hover {
+      border-color: #ffff00;
+      box-shadow: 0 0 20px rgba(255, 255, 0, 0.2);
+      transform: translateY(-3px);
+    }
+
+    .exercise-card.locked {
+      opacity: 0.7;
+      filter: grayscale(0.5);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-header h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      text-shadow: 0 0 5px #ffff00;
+    }
+
+    .lock-icon {
+      font-size: 1.2rem;
+      text-shadow: 0 0 5px #ffff00;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    .action-btn {
+      background-color: transparent;
+      border: 1px solid #ffff00;
+      color: #ffff00;
+      padding: 8px;
       cursor: pointer;
-      opacity: 1;
+      font-family: 'Share Tech Mono', monospace;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border-radius: 4px;
+      text-shadow: 0 0 5px #ffff00;
     }
 
-    .card.unlocked:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    .action-btn:hover:not(:disabled) {
+      background-color: rgba(255, 255, 0, 0.1);
+      transform: scale(1.05);
     }
 
-    .card-status {
-      margin-top: 1rem;
-      font-size: 0.8rem;
-      text-align: right;
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .code-input-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 0, 0.3);
+      flex-shrink: 0;
     }
 
     .code-input {
-      margin-top: auto;
       display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
+      gap: 10px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
     }
 
     .form-control {
-      width: 100%;
-      padding: 0.75rem;
-      background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid white;
-      color: white;
-      box-sizing: border-box;
+      flex: 1;
+      padding: 10px 15px;
+      background-color: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 0, 0.3);
+      color: #ffff00;
+      border-radius: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      position: relative;
+      z-index: 2;
     }
 
     .form-control::placeholder {
-      color: white;
-      font-family: 'Courier Prime', monospace;
+      color: rgba(255, 255, 0, 0.5);
     }
 
     .btn-submit {
-      padding: 0.75rem;
-      background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid white;
-      color: white;
+      padding: 10px 20px;
+      background-color: transparent;
+      border: 1px solid #ffff00;
+      color: #ffff00;
       cursor: pointer;
-      font-family: 'Courier Prime', monospace;
+      font-family: 'Share Tech Mono', monospace;
+      transition: all 0.3s ease;
+      border-radius: 4px;
+      text-shadow: 0 0 5px #ffff00;
+      position: relative;
+      z-index: 2;
     }
 
-    .message {
+    .btn-submit:hover {
+      background-color: rgba(255, 255, 0, 0.1);
+      transform: scale(1.05);
+    }
+
+    .error-message,
+    .success-message {
+      position: relative;
+      z-index: 2;
+    }
+
+    .error-message {
+      color: #ff4444;
+      background-color: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.3);
+    }
+
+    .success-message {
+      color: #ffff00;
+      background-color: rgba(255, 255, 0, 0.1);
+      border: 1px solid rgba(255, 255, 0, 0.3);
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .modal-content {
+      background-color: rgba(0, 0, 0, 0.9);
+      border: 1px solid #ffff00;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 500px;
+      width: 90%;
+      color: #ffff00;
+    }
+
+    .close-btn {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background-color: transparent;
+      border: 1px solid #ffff00;
+      color: #ffff00;
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      transition: all 0.3s ease;
+      border-radius: 4px;
+      width: 100%;
+    }
+
+    .close-btn:hover {
+      background-color: rgba(255, 255, 0, 0.1);
+      transform: scale(1.05);
+    }
+
+    .modal-content.final-modal {
       text-align: center;
-      padding: 0.5rem;
+      max-width: 400px;
     }
 
-    .success {
-      color: green;
+    .final-modal h2 {
+      color: #ffff00;
+      font-size: 2rem;
+      margin-bottom: 1rem;
     }
 
-    .error {
-      color: red;
+    .final-modal .creator {
+      color: #ffff00;
+      font-size: 1rem;
+      margin-top: 1rem;
+      font-style: italic;
+      opacity: 0.8;
     }
-  `,
+    `
   ],
 })
-export class PyComponent implements OnInit {
+export class PyComponent implements OnInit, AfterViewInit {
+  @ViewChild('matrixCanvas') matrixCanvas!: ElementRef<HTMLCanvasElement>;
+  private animationFrameId: number | null = null;
+  private matrixChars = "01";
+  private matrixDrops: number[] = [];
+  private matrixFontSize = 12;
+  private matrixColumns = 0;
+  private isBrowser: boolean;
+
   cards = [
     {
       id: 1,
-      title: "Nivel 1",
-      description: "Introducción a Python",
       unlocked: true,
-      filename: "level1.py",
+      message: '',
+      isSuccess: false,
+      longDescription: 'Nivel 1: Run the runme.py script to get the flag. Download the script with your browser or with wget in the webshell.'
     },
     {
       id: 2,
-      title: "Nivel 2",
-      description: "Manipulación de strings",
       unlocked: false,
-      filename: "level2.py",
+      message: '',
+      isSuccess: false,
+      longDescription: 'Nivel 2: Fix the syntax error in this Python script to print the flag.'
     },
     {
       id: 3,
-      title: "Nivel 3",
-      description: "Estructuras de datos",
       unlocked: false,
-      filename: "level3.py",
+      message: '',
+      isSuccess: false,
+      longDescription: 'Nivel 3: Fix the syntax error in this Python script to print the flag.'
     },
     {
       id: 4,
-      title: "Nivel 4",
-      description: "Funciones y módulos",
       unlocked: false,
-      filename: "level4.py",
+      message: '',
+      isSuccess: false,
+      longDescription: 'Nivel 4: Run the Python script and convert the given number from decimal to binary to get the flag'
     },
     {
       id: 5,
-      title: "Nivel 5",
-      description: "Manejo de archivos",
       unlocked: false,
-      filename: "level5.py",
+      message: '',
+      isSuccess: false,
+      longDescription: 'Nivel 5: Run the Python script code.py in the same directory as codebook.txt.'
     },
     {
       id: 6,
-      title: "Nivel 6",
-      description: "Explotación avanzada",
       unlocked: false,
-      filename: "level6.py",
-    },
-  ]
+      message: '',
+      isSuccess: false,
+      longDescription: 'Nivel 6: Can you get the flag?'
+    }
+  ];
 
-  codeInput = ""
-  message = ""
-  isSuccess = false
+  showInfoModal = false;
+  selectedCard: any = null;
+  headerText = "Py7h0n_3xp10t471on";
+  showFinalModal = false;
+  codeInput = "";
+  errorMessage = "";
+  successMessage = "";
 
   constructor(
     private pyService: PyService,
     private router: Router,
-  ) {}
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
+  /**
+   * Inicializa el componente verificando los niveles desbloqueados.
+   * Se ejecuta cuando el componente se inicializa.
+   */
   ngOnInit(): void {
-    // Update unlocked levels
-    this.updateUnlockedLevels()
+    this.updateUnlockedLevels();
   }
 
+  /**
+   * Inicializa la animación de la matriz después de que la vista se haya inicializado.
+   * Solo se ejecuta en el navegador.
+   */
+  ngAfterViewInit(): void {
+    if (this.isBrowser) {
+      this.startMatrixAnimation();
+    }
+  }
+
+  /**
+   * Inicia y configura la animación de la matriz de caracteres en el canvas.
+   * Crea el efecto de lluvia de caracteres binarios.
+   */
+  private startMatrixAnimation(): void {
+    const canvas = this.matrixCanvas.nativeElement;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) return;
+
+    // Configurar el canvas
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Inicializar las gotas
+    this.matrixColumns = Math.floor(canvas.width / this.matrixFontSize);
+    this.matrixDrops = Array(this.matrixColumns).fill(1);
+
+    // Función de animación
+    const draw = () => {
+      if (!ctx) return;
+
+      // Fondo semi-transparente para efecto de rastro
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Color y fuente del texto
+      ctx.fillStyle = '#ffff00';
+      ctx.font = this.matrixFontSize + 'px monospace';
+
+      // Dibujar los caracteres
+      for (let i = 0; i < this.matrixDrops.length; i++) {
+        const text = this.matrixChars.charAt(Math.floor(Math.random() * this.matrixChars.length));
+        ctx.fillText(text, i * this.matrixFontSize, this.matrixDrops[i] * this.matrixFontSize);
+
+        // Reiniciar la gota cuando llega al fondo
+        if (this.matrixDrops[i] * this.matrixFontSize > canvas.height && Math.random() > 0.975) {
+          this.matrixDrops[i] = 0;
+        }
+
+        this.matrixDrops[i]++;
+      }
+
+      this.animationFrameId = requestAnimationFrame(draw);
+    };
+
+    // Iniciar la animación
+    draw();
+
+    // Manejar el redimensionamiento de la ventana
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      this.matrixColumns = Math.floor(canvas.width / this.matrixFontSize);
+      this.matrixDrops = Array(this.matrixColumns).fill(1);
+    });
+  }
+
+  /**
+   * Navega de regreso a la página anterior utilizando el Router de Angular.
+   * Redirige al usuario a la ruta "/dir" cuando se hace clic en el botón "Atras".
+   */
   goBack(): void {
-    this.router.navigate(["/dir"])
+    this.router.navigate(['/dir']);
   }
 
-  // Update which levels are unlocked
+  /**
+   * Actualiza el estado de desbloqueo de todos los niveles.
+   * Verifica con el servicio PyService qué niveles están desbloqueados.
+   */
   updateUnlockedLevels(): void {
-    for (let i = 1; i <= 6; i++) {
-      if (this.pyService.isLevelUnlocked(i)) {
-        this.cards[i - 1].unlocked = true
+    this.cards.forEach(card => {
+      card.unlocked = this.pyService.isLevelUnlocked(card.id);
+    });
+  }
+
+  /**
+   * Valida el código ingresado por el usuario.
+   * Verifica si el código es válido y desbloquea el siguiente nivel si corresponde.
+   * Muestra mensajes de éxito o error según el resultado.
+   */
+  validateCode(): void {
+    this.errorMessage = "";
+    this.successMessage = "";
+
+    if (!this.codeInput) {
+      this.errorMessage = "Por favor ingresa un código";
+      return;
+    }
+
+    const result = this.pyService.validatePyCode(this.codeInput);
+    if (result.isFinal) {
+      this.headerText = "dZ4hW6cV9G";
+      this.showFinalModal = true;
+      this.successMessage = "¡Has encontrado la flag final!";
+      this.codeInput = "";
+    } else if (result.level) {
+      this.successMessage = `¡Nivel ${result.level} desbloqueado!`;
+      this.pyService.unlockLevel(result.level);
+      this.updateUnlockedLevels();
+      this.codeInput = "";
+    } else {
+      // Check if trying to use final flag before all levels are unlocked
+      const hashedCode = CryptoJS.SHA256(this.codeInput).toString();
+      if (hashedCode === this.pyService['levelCodes'].final) {
+        this.errorMessage = "Debes desbloquear todos los niveles antes de usar la flag final";
+      } else {
+        this.errorMessage = "Código inválido o nivel no disponible en este momento";
       }
     }
   }
 
-  // Validate the entered code
-  validateCode(): void {
-    this.message = ""
+  /**
+   * Maneja la descarga del archivo py.txt para un nivel específico.
+   * Crea un elemento <a> temporal, establece su href y download,
+   * lo agrega al DOM, simula un clic para iniciar la descarga,
+   * y luego lo elimina del DOM.
+   */
+  downloadPyFile(card: any): void {
+    if (card.unlocked) {
+      // Download Python file
+      const pyLink = document.createElement('a');
+      pyLink.href = `assets/py/${card.id}.py`;
+      pyLink.download = `${card.id}.py`;
+      document.body.appendChild(pyLink);
+      pyLink.click();
+      document.body.removeChild(pyLink);
 
-    const unlockedLevel = this.pyService.validatePyCode(this.codeInput)
-
-    if (unlockedLevel) {
-      this.pyService.unlockLevel(unlockedLevel)
-      this.cards[unlockedLevel - 1].unlocked = true
-      this.isSuccess = true
-      this.message = `¡Nivel ${unlockedLevel} desbloqueado!`
-      this.codeInput = ""
-    } else {
-      this.isSuccess = false
-      this.message = "Código inválido"
+      // Download answers file
+      const answersLink = document.createElement('a');
+      answersLink.href = `assets/py/respuestas.txt`;
+      answersLink.download = `respuestas.txt`;
+      document.body.appendChild(answersLink);
+      answersLink.click();
+      document.body.removeChild(answersLink);
     }
   }
 
-  // Download Python file
-  downloadPyFile(card: any): void {
-    if (card.unlocked) {
-      const link = document.createElement('a');
-      link.href = `assets/py/${card.id}.py`;
-      link.download = `${card.id}.py`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+  /**
+   * Muestra la información detallada de un nivel específico.
+   * Abre el modal de información con los detalles del nivel seleccionado.
+   */
+  showInfo(card: any): void {
+    this.selectedCard = card;
+    this.showInfoModal = true;
+  }
+
+  /**
+   * Cierra el modal de información.
+   * Restablece el estado del modal a cerrado.
+   */
+  closeInfo(): void {
+    this.showInfoModal = false;
+  }
+
+  /**
+   * Cierra el modal final que se muestra al completar todos los niveles.
+   * Restablece el estado del modal final a cerrado.
+   */
+  closeFinalModal(): void {
+    this.showFinalModal = false;
   }
 }

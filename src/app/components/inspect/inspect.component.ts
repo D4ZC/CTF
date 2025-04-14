@@ -32,6 +32,11 @@ import { Router } from "@angular/router"
         qrgrpgvirf qrora fre qvfpergbf l erfcrgne yn cevinpvqnq qr ynf crefbanf vaibyhpenqnf, npghnaqb fvrzcer qrageb
         qry znepb yrtny l égvpb. Han svygenpvóa qr qngbf cbqeín ab fbyb neehvane han vairfgvtnpvóa, fvab gnzovéa cbare
         ra evrftb n ybf vzcyvpnqbf.</p>
+        <!--No soy arte, pero a veces me parezco.
+        No soy plano, aunque en planos aparezco.
+        Soy idea, forma y creación,
+        nacido del orden y la imaginación.
+        ¿Qué soy?-->
       </div>
     </main>
   `,
@@ -50,14 +55,15 @@ import { Router } from "@angular/router"
       background-color: #000;
       overflow: hidden;
       position: relative;
+      z-index: 1;
     }
 
-    #binary-background {
+    canvas {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       z-index: 0;
       background-color: #000;
     }
@@ -78,7 +84,6 @@ import { Router } from "@angular/router"
       text-align: center;
       flex-grow: 1;
     }
-
     #titulo h1 {
       margin: 0;
       color: #ffffff;
@@ -111,8 +116,8 @@ import { Router } from "@angular/router"
       background-color: rgba(255, 255, 255, 0.2);
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     }
-
     main {
+        /*siguiente nivel: pW7kX9L0zD :D */
       padding: 20px;
       max-width: 1200px;
       margin: 0 auto;
@@ -142,7 +147,7 @@ import { Router } from "@angular/router"
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.5);
     }
-
+    /* Quizas es mas arriba?? o mas abajo??*/
     :host::before {
       content: '';
       position: fixed;
