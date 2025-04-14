@@ -352,7 +352,20 @@ export class DecoComponent implements OnInit, AfterViewInit {
     drawBinary();
   }
 
+  /**
+   * Navega de regreso a la página anterior utilizando el Router de Angular.
+   * Redirige al usuario a la ruta "/dir" cuando se hace clic en el botón "Atras".
+   */
+  goBack(): void {
+    this.router.navigate(["/dir"])
+  }
 
+  /**
+   * Maneja la descarga del archivo deco.txt.
+   * Crea un elemento <a> temporal, establece su href y download,
+   * lo agrega al DOM, simula un clic para iniciar la descarga,
+   * y luego lo elimina del DOM.
+   */
   downloadFile(index: number): void {
     const a = document.createElement('a');
     a.href = `./assets/hint/hint${index}.txt`;
@@ -360,10 +373,6 @@ export class DecoComponent implements OnInit, AfterViewInit {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-  }
-
-  goBack(): void {
-    this.router.navigate(["/dir"])
   }
 
   validateCode(): void {
