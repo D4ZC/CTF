@@ -540,14 +540,8 @@ export class PyComponent implements OnInit, AfterViewInit {
     if (!this.codeInput) {
       this.errorMessage = "Por favor ingresa un código";
       return;
-      
     }
 
-<<<<<<< Updated upstream
-    const nextLevel = this.pyService.validatePyCode(this.codeInput);
-    if (nextLevel) {
-      this.successMessage = `¡Nivel ${nextLevel} desbloqueado!`;
-=======
     const result = this.pyService.validatePyCode(this.codeInput);
     if (result.isFinal) {
       this.headerText = "dZ4hW6cV9G";
@@ -557,7 +551,6 @@ export class PyComponent implements OnInit, AfterViewInit {
     } else if (result.level) {
       this.successMessage = `¡Nivel ${result.level} desbloqueado!`;
       this.pyService.unlockLevel(result.level);
->>>>>>> Stashed changes
       this.updateUnlockedLevels();
       this.codeInput = "";
     } else {
