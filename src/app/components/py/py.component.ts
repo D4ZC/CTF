@@ -539,12 +539,12 @@ export class PyComponent implements OnInit, AfterViewInit {
     if (!this.codeInput) {
       this.errorMessage = "Por favor ingresa un código";
       return;
-      
     }
 
     const nextLevel = this.pyService.validatePyCode(this.codeInput);
     if (nextLevel) {
       this.successMessage = `¡Nivel ${nextLevel} desbloqueado!`;
+      this.pyService.unlockLevel(nextLevel);
       this.updateUnlockedLevels();
       this.codeInput = "";
       
