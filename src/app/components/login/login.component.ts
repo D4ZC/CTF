@@ -10,6 +10,7 @@ import { AuthService } from "../../services/auth.service"
   imports: [CommonModule, FormsModule],
   template: `
     <div class="login-container">
+      <!--Este es el codigo para el siguiente nivel: 4F9dH2bK1Q-->
       <canvas #binaryCanvas class="binary-rain"></canvas>
       <div class="content-wrapper">
         <header>
@@ -17,10 +18,12 @@ import { AuthService } from "../../services/auth.service"
         </header>
         <main>
           <section class="login-form">
+          <!-- Este campo ama las citas... especialmente las simples (') -->
             <div class="form-group">
               <input 
                 type="text" 
                 [(ngModel)]="username" 
+                <!-- Nadie va a adivinar que es "admin123"... excepto todos -->
                 placeholder="Usuario" 
                 class="form-control"
               />
@@ -30,6 +33,7 @@ import { AuthService } from "../../services/auth.service"
                 type="password" 
                 [(ngModel)]="password" 
                 placeholder="Contraseña" 
+                <!-- No te preocupes, nadie va a adivinar "123456"... ¿verdad? -->
                 class="form-control"
               />
             </div>
@@ -38,6 +42,7 @@ import { AuthService } from "../../services/auth.service"
           </section>
         </main>
       </div>
+      <!-- ¿Por qué validar inputs si podemos dejar que el usuario administre la base de datos? -->
     </div>
   `,
   styles: [`
@@ -245,6 +250,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
       this.router.navigate(["/dir"])
     } else {
       this.errorMessage = "Credenciales incorrectas"
+      //10 intentos restantes antes de que lancemos el misil
     }
   }
 }
