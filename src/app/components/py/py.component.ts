@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
 import { PyService } from "../../services/py.service"
+import * as CryptoJS from 'crypto-js'
 
 @Component({
   selector: "app-py",
@@ -542,17 +543,31 @@ export class PyComponent implements OnInit, AfterViewInit {
       
     }
 
+<<<<<<< Updated upstream
     const nextLevel = this.pyService.validatePyCode(this.codeInput);
     if (nextLevel) {
       this.successMessage = `¡Nivel ${nextLevel} desbloqueado!`;
+=======
+    const result = this.pyService.validatePyCode(this.codeInput);
+    if (result.isFinal) {
+      this.headerText = "dZ4hW6cV9G";
+      this.showFinalModal = true;
+      this.successMessage = "¡Has encontrado la flag final!";
+      this.codeInput = "";
+    } else if (result.level) {
+      this.successMessage = `¡Nivel ${result.level} desbloqueado!`;
+      this.pyService.unlockLevel(result.level);
+>>>>>>> Stashed changes
       this.updateUnlockedLevels();
       this.codeInput = "";
-      
-      if (nextLevel === 6) {
-        this.showFinalModal = true;
-      }
     } else {
-      this.errorMessage = "Código inválido";
+      // Check if trying to use final flag before all levels are unlocked
+      const hashedCode = CryptoJS.SHA256(this.codeInput).toString();
+      if (hashedCode === this.pyService['levelCodes'].final) {
+        this.errorMessage = "Debes desbloquear todos los niveles antes de usar la flag final";
+      } else {
+        this.errorMessage = "Código inválido o nivel no disponible en este momento";
+      }
     }
   }
 
