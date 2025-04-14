@@ -459,16 +459,28 @@ export class PyComponent implements OnInit, AfterViewInit {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
+  /**
+   * Inicializa el componente verificando los niveles desbloqueados.
+   * Se ejecuta cuando el componente se inicializa.
+   */
   ngOnInit(): void {
     this.updateUnlockedLevels();
   }
 
+  /**
+   * Inicializa la animación de la matriz después de que la vista se haya inicializado.
+   * Solo se ejecuta en el navegador.
+   */
   ngAfterViewInit(): void {
     if (this.isBrowser) {
       this.startMatrixAnimation();
     }
   }
 
+  /**
+   * Inicia y configura la animación de la matriz de caracteres en el canvas.
+   * Crea el efecto de lluvia de caracteres binarios.
+   */
   private startMatrixAnimation(): void {
     const canvas = this.matrixCanvas.nativeElement;
     const ctx = canvas.getContext('2d');
@@ -523,16 +535,29 @@ export class PyComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Navega de regreso a la página anterior utilizando el Router de Angular.
+   * Redirige al usuario a la ruta "/dir" cuando se hace clic en el botón "Atras".
+   */
   goBack(): void {
     this.router.navigate(['/dir']);
   }
 
+  /**
+   * Actualiza el estado de desbloqueo de todos los niveles.
+   * Verifica con el servicio PyService qué niveles están desbloqueados.
+   */
   updateUnlockedLevels(): void {
     this.cards.forEach(card => {
       card.unlocked = this.pyService.isLevelUnlocked(card.id);
     });
   }
 
+  /**
+   * Valida el código ingresado por el usuario.
+   * Verifica si el código es válido y desbloquea el siguiente nivel si corresponde.
+   * Muestra mensajes de éxito o error según el resultado.
+   */
   validateCode(): void {
     this.errorMessage = "";
     this.successMessage = "";
@@ -564,6 +589,12 @@ export class PyComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Maneja la descarga del archivo py.txt para un nivel específico.
+   * Crea un elemento <a> temporal, establece su href y download,
+   * lo agrega al DOM, simula un clic para iniciar la descarga,
+   * y luego lo elimina del DOM.
+   */
   downloadPyFile(card: any): void {
     if (card.unlocked) {
       // Download Python file
@@ -584,15 +615,27 @@ export class PyComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Muestra la información detallada de un nivel específico.
+   * Abre el modal de información con los detalles del nivel seleccionado.
+   */
   showInfo(card: any): void {
     this.selectedCard = card;
     this.showInfoModal = true;
   }
 
+  /**
+   * Cierra el modal de información.
+   * Restablece el estado del modal a cerrado.
+   */
   closeInfo(): void {
     this.showInfoModal = false;
   }
 
+  /**
+   * Cierra el modal final que se muestra al completar todos los niveles.
+   * Restablece el estado del modal final a cerrado.
+   */
   closeFinalModal(): void {
     this.showFinalModal = false;
   }
