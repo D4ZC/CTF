@@ -3,6 +3,10 @@ import { CommonModule } from "@angular/common"
 import { Router } from "@angular/router"
 import { HttpClient } from "@angular/common/http"
 
+/**
+ * Componente HexaComponent: Implementa una galería de imágenes con efectos visuales futuristas
+ * Incluye efectos de matriz binaria, partículas espaciales, líneas de escaneo y efectos de glitch
+ */
 @Component({
   selector: "app-hexa",
   standalone: true,
@@ -362,13 +366,20 @@ import { HttpClient } from "@angular/common/http"
   `]
 })
 export class HexaComponent implements OnInit, AfterViewInit {
+  // Referencia al elemento canvas para el efecto de matriz binaria
   @ViewChild('binaryCanvas') binaryCanvas!: ElementRef<HTMLCanvasElement>;
+  // Contexto de renderizado del canvas
   private ctx!: CanvasRenderingContext2D;
+  // Array para almacenar la posición de cada columna de caracteres binarios
   private columns: number[] = [];
+  // Tamaño de fuente para los caracteres binarios
   private fontSize = 14;
+  // ID del frame de animación para controlar la animación
   private animationFrameId: number | null = null;
+  // Bandera para controlar si el canvas ya ha sido inicializado
   private isCanvasInitialized = false;
 
+  // Lista de nombres de imágenes a mostrar en la galería
   images = [
     "1 (1) h.jpg",
     "2 (1) h.jpg",
@@ -388,16 +399,29 @@ export class HexaComponent implements OnInit, AfterViewInit {
     "16.jpg"
   ];
 
+  /**
+   * Constructor del componente
+   * @param router - Servicio para la navegación entre rutas
+   * @param http - Servicio para realizar peticiones HTTP
+   */
   constructor(
     private router: Router,
     private http: HttpClient
   ) {}
 
+  /**
+   * Método del ciclo de vida OnInit
+   * Inicializa los efectos visuales cuando el componente se crea
+   */
   ngOnInit() {
     this.createScanEffect();
     this.createSpaceParticles();
   }
 
+  /**
+   * Método del ciclo de vida AfterViewInit
+   * Inicializa el canvas de matriz binaria después de que la vista se haya renderizado
+   */
   ngAfterViewInit() {
     this.createScanEffect();
     if (!this.isCanvasInitialized) {
@@ -408,6 +432,10 @@ export class HexaComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Inicializa el canvas para el efecto de matriz binaria
+   * Configura el tamaño del canvas, crea las columnas de caracteres y comienza la animación
+   */
   private initBinaryCanvas() {
     if (!this.binaryCanvas || this.isCanvasInitialized) return;
     
@@ -461,6 +489,12 @@ export class HexaComponent implements OnInit, AfterViewInit {
     animate();
   }
 
+  /**
+   * Implementa la función debounce para limitar la frecuencia de ejecución de una función
+   * @param func - Función a ejecutar
+   * @param wait - Tiempo de espera en milisegundos
+   * @returns Función debounceada
+   */
   private debounce(func: Function, wait: number) {
     let timeout: NodeJS.Timeout;
     return function executedFunction(...args: any[]) {
@@ -473,6 +507,10 @@ export class HexaComponent implements OnInit, AfterViewInit {
     };
   }
 
+  /**
+   * Método del ciclo de vida OnDestroy
+   * Limpia los recursos cuando el componente se destruye
+   */
   ngOnDestroy() {
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
@@ -481,6 +519,11 @@ export class HexaComponent implements OnInit, AfterViewInit {
     this.isCanvasInitialized = false;
   }
 
+  /**
+   * Determina la posición de una imagen en la cuadrícula
+   * @param index - Índice de la imagen
+   * @returns Cadena con la posición en la cuadrícula (formato: fila-inicio/columna-inicio/fila-fin/columna-fin)
+   */
   getGridArea(index: number): string {
     const gridAreas = [
       '1/1/2/2', '2/2/3/3', '3/3/4/4', '4/4/5/5',
@@ -491,20 +534,38 @@ export class HexaComponent implements OnInit, AfterViewInit {
     return gridAreas[index];
   }
 
+  /**
+   * Obtiene el nombre de la imagen a partir de su ruta
+   * @param path - Ruta de la imagen
+   * @returns Nombre de la imagen
+   */
   getName(path: string): string {
     return path;
   }
 
+  /**
+   * Construye la ruta completa para una imagen
+   * @param filename - Nombre del archivo de imagen
+   * @returns Ruta completa para la imagen
+   */
   getImagePath(filename: string): string {
     return `/assets/img/${filename}`;
   }
 
+  /**
+   * Maneja errores al cargar imágenes
+   * @param event - Evento de error
+   */
   handleImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     console.error(`Error loading image: ${img.src}`);
     img.src = 'assets/img/error-placeholder.jpg'; // Opcional: imagen de respaldo
   }
 
+  /**
+   * Crea el efecto de línea de escaneo
+   * Añade un elemento div con la clase 'scan-effect' dentro del contenedor 'scan-line'
+   */
   private createScanEffect() {
     const scanLine = document.querySelector('.scan-line');
     if (!scanLine) return;
@@ -514,6 +575,10 @@ export class HexaComponent implements OnInit, AfterViewInit {
     scanLine.appendChild(scanEffect);
   }
 
+  /**
+   * Crea partículas espaciales para el efecto de fondo
+   * Genera un número determinado de partículas con posiciones y tamaños aleatorios
+   */
   private createSpaceParticles() {
     const particlesContainer = document.querySelector('.space-particles');
     if (!particlesContainer) return;
@@ -537,6 +602,10 @@ export class HexaComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Descarga una imagen al hacer clic en ella
+   * @param filename - Nombre del archivo a descargar
+   */
   async downloadImage(filename: string) {
     try {
       const response = await this.http.get(`/assets/img/${filename}`, { 
@@ -562,6 +631,9 @@ export class HexaComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Navega de vuelta a la página anterior
+   */
   goBack(): void {
     this.router.navigate(['/dir']);
   }
