@@ -116,8 +116,8 @@ import { Router } from "@angular/router"
       background-color: rgba(255, 255, 255, 0.2);
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     }
-    /*siguiente nivel: pW7kX9L0zD :D */
     main {
+        /*siguiente nivel: pW7kX9L0zD :D */
       padding: 20px;
       max-width: 1200px;
       margin: 0 auto;

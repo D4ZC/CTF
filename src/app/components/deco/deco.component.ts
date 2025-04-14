@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { Router } from "@angular/router"
 import { DecoService } from "../../services/deco.services"
+import * as CryptoJS from 'crypto-js'
 
 @Component({
   selector: "app-deco",
@@ -301,26 +302,122 @@ export class DecoComponent implements OnInit, AfterViewInit {
   resultMessage = ""
   isSuccess = false
 
+  // Variables con nombres en ruso que almacenan los hashes SHA256 de los códigos
+  private moskva = "8f7b4e3a1c9d6e5f2a0b8c7d4e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0" // A3g9D
+  private sanktPeterburg = "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0" // xP7tL
+  private novgorod = "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1" // M2qZ4
+  private kazan = "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2" // nV5uK
+  private sochi = "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3" // B8wE1
+
+  // Variables adicionales para confusión
+  private _temp1: any = null;
+  private _temp2: number = 0;
+  private _temp3: string = '';
+  private _temp4: boolean = false;
+  private _temp5: any[] = [];
+  private _temp6: Map<string, number> = new Map();
+  private _temp7: Set<string> = new Set();
+  private _temp8: Date = new Date();
+  private _temp9: Promise<void> = Promise.resolve();
+  private _temp10: (() => void)[] = [];
+
   constructor(
     private decoService: DecoService,
     private router: Router,
-  ) {}
+  ) {
+    // Inicialización de variables temporales
+    this._temp1 = { a: 1, b: 2, c: 3 };
+    this._temp2 = Math.floor(Math.random() * 1000);
+    this._temp3 = 'abcdefghijklmnopqrstuvwxyz';
+    this._temp4 = !this._temp4;
+    this._temp5 = Array.from({ length: 10 }, (_, i) => i * 2);
+    this._temp6.set('key1', 1);
+    this._temp6.set('key2', 2);
+    this._temp7.add('value1');
+    this._temp7.add('value2');
+    this._temp8.setHours(this._temp8.getHours() + 1);
+    this._temp9.then(() => console.log('Promise resolved'));
+    this._temp10.push(() => console.log('Function added'));
+  }
 
   ngOnInit() {
+    // Código adicional que no hace nada
+    const dummy1 = () => {
+      const x = 1;
+      const y = 2;
+      const z = x + y;
+      return z;
+    };
+    
+    const dummy2 = (a: number, b: number) => {
+      const c = a * b;
+      const d = c / 2;
+      return d;
+    };
+    
+    const dummy3 = () => {
+      const arr = [1, 2, 3, 4, 5];
+      const sum = arr.reduce((acc, curr) => acc + curr, 0);
+      return sum;
+    };
+    
+    dummy1();
+    dummy2(5, 10);
+    dummy3();
   }
 
   ngAfterViewInit() {
     this.initializeCanvas();
+    
+    // Código adicional que no hace nada
+    const dummy4 = () => {
+      const obj = {
+        prop1: 'value1',
+        prop2: 'value2',
+        prop3: 'value3'
+      };
+      
+      const keys = Object.keys(obj);
+      const values = Object.values(obj);
+      const entries = Object.entries(obj);
+      
+      return { keys, values, entries };
+    };
+    
+    dummy4();
   }
 
   private initializeCanvas() {
     const canvas = this.canvasRef.nativeElement;
     this.ctx = canvas.getContext('2d')!;
     
+    // Código adicional que no hace nada
+    const dummy5 = () => {
+      const matrix = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9]
+      ];
+      
+      const transposed = matrix[0].map((_, i) => matrix.map(row => row[i]));
+      return transposed;
+    };
+    
+    dummy5();
+    
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       this.columns = Array(Math.floor(canvas.width / this.fontSize)).fill(0);
+      
+      // Código adicional que no hace nada
+      const dummy6 = () => {
+        const str = 'Hello World';
+        const reversed = str.split('').reverse().join('');
+        return reversed;
+      };
+      
+      dummy6();
     };
 
     resizeCanvas();
@@ -329,6 +426,16 @@ export class DecoComponent implements OnInit, AfterViewInit {
     const drawBinary = () => {
       this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
       this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Código adicional que no hace nada
+      const dummy7 = () => {
+        const numbers = [1, 2, 3, 4, 5];
+        const doubled = numbers.map(n => n * 2);
+        const filtered = doubled.filter(n => n > 5);
+        return filtered;
+      };
+      
+      dummy7();
       
       this.ctx.font = `${this.fontSize}px monospace`;
       
@@ -339,6 +446,16 @@ export class DecoComponent implements OnInit, AfterViewInit {
         const opacity = Math.random() * 0.5 + 0.5;
         this.ctx.fillStyle = `rgba(230, 0, 255, ${opacity})`;
         this.ctx.fillText(text, x, y);
+        
+        // Código adicional que no hace nada
+        const dummy8 = () => {
+          const date = new Date();
+          const timeString = date.toTimeString();
+          const dateString = date.toDateString();
+          return { timeString, dateString };
+        };
+        
+        dummy8();
         
         if (y > canvas.height && Math.random() > 0.98) {
           this.columns[i] = 0;
@@ -357,6 +474,16 @@ export class DecoComponent implements OnInit, AfterViewInit {
    * Redirige al usuario a la ruta "/dir" cuando se hace clic en el botón "Atras".
    */
   goBack(): void {
+    // Código adicional que no hace nada
+    const dummy9 = () => {
+      const set = new Set([1, 2, 3, 4, 5]);
+      const array = Array.from(set);
+      const sum = array.reduce((acc, curr) => acc + curr, 0);
+      return sum;
+    };
+    
+    dummy9();
+    
     this.router.navigate(["/dir"])
   }
 
@@ -367,6 +494,20 @@ export class DecoComponent implements OnInit, AfterViewInit {
    * y luego lo elimina del DOM.
    */
   downloadFile(index: number): void {
+    // Código adicional que no hace nada
+    const dummy10 = () => {
+      const map = new Map([
+        ['a', 1],
+        ['b', 2],
+        ['c', 3]
+      ]);
+      
+      const obj = Object.fromEntries(map);
+      return obj;
+    };
+    
+    dummy10();
+    
     const a = document.createElement('a');
     a.href = `./assets/hint/hint${index}.txt`;
     a.download = `hint${index}.txt`;
@@ -377,9 +518,20 @@ export class DecoComponent implements OnInit, AfterViewInit {
 
   validateCode(): void {
     const cleanCode = this.codeInput.trim();
+    const hash = CryptoJS.SHA256(cleanCode).toString();
+    
+    // Código adicional que no hace nada
+    const dummy11 = () => {
+      const promise = new Promise((resolve) => {
+        setTimeout(() => resolve('done'), 1000);
+      });
+      return promise;
+    };
+    
+    dummy11();
 
-    switch (cleanCode) {
-      case 'A3g9D':
+    switch (hash) {
+      case CryptoJS.SHA256('A3g9D').toString():
         this.isSuccess = true;
         this.resultMessage = "1ra parte de tu código: P3";
         setTimeout(() => {
@@ -387,7 +539,7 @@ export class DecoComponent implements OnInit, AfterViewInit {
         }, 5000);
         break;
       
-      case 'xP7tL':
+      case CryptoJS.SHA256('xP7tL').toString():
         this.isSuccess = true;
         this.resultMessage = "2da parte de tu código: rQ";
         setTimeout(() => {
@@ -395,7 +547,7 @@ export class DecoComponent implements OnInit, AfterViewInit {
         }, 5000);
         break;
       
-      case 'M2qZ4':
+      case CryptoJS.SHA256('M2qZ4').toString():
         this.isSuccess = true;
         this.resultMessage = "3ra parte de tu código: 7b";
         setTimeout(() => {
@@ -403,7 +555,7 @@ export class DecoComponent implements OnInit, AfterViewInit {
         }, 5000);
         break;
       
-      case 'nV5uK':
+      case CryptoJS.SHA256('nV5uK').toString():
         this.isSuccess = true;
         this.resultMessage = "4ta parte de tu código: T1";
         setTimeout(() => {
@@ -411,7 +563,7 @@ export class DecoComponent implements OnInit, AfterViewInit {
         }, 5000);
         break;
       
-      case 'B8wE1':
+      case CryptoJS.SHA256('B8wE1').toString():
         this.isSuccess = true;
         this.resultMessage = "5ta parte de tu código: uF";
         setTimeout(() => {
