@@ -20,10 +20,10 @@ import { AuthService } from "../../services/auth.service"
           <section class="login-form">
           <!-- Este campo ama las citas... especialmente las simples (') -->
             <div class="form-group">
+              <!-- Nadie va a adivinar que es "admin123"... excepto todos -->
               <input 
                 type="text" 
                 [(ngModel)]="username" 
-                <!-- Nadie va a adivinar que es "admin123"... excepto todos -->
                 placeholder="Usuario" 
                 class="form-control"
               />
@@ -33,9 +33,9 @@ import { AuthService } from "../../services/auth.service"
                 type="password" 
                 [(ngModel)]="password" 
                 placeholder="Contraseña" 
-                <!-- No te preocupes, nadie va a adivinar "123456"... ¿verdad? -->
                 class="form-control"
               />
+              <!-- No te preocupes, nadie va a adivinar "123456"... ¿verdad? -->
             </div>
             <button (click)="onLogin()" class="btn-submit">Ingresar</button>
             <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
