@@ -404,42 +404,42 @@ export class PyComponent implements OnInit, AfterViewInit {
       unlocked: true,
       message: '',
       isSuccess: false,
-      longDescription: 'Nivel 1: Sintaxis básica y variables en Python'
+      longDescription: 'Nivel 1: Run the runme.py script to get the flag. Download the script with your browser or with wget in the webshell.'
     },
     {
       id: 2,
       unlocked: false,
       message: '',
       isSuccess: false,
-      longDescription: 'Nivel 2: Estructuras de control y bucles'
+      longDescription: 'Nivel 2: Fix the syntax error in this Python script to print the flag.'
     },
     {
       id: 3,
       unlocked: false,
       message: '',
       isSuccess: false,
-      longDescription: 'Nivel 3: Funciones y módulos'
+      longDescription: 'Nivel 3: Fix the syntax error in this Python script to print the flag.'
     },
     {
       id: 4,
       unlocked: false,
       message: '',
       isSuccess: false,
-      longDescription: 'Nivel 4: Programación orientada a objetos'
+      longDescription: 'Nivel 4: Run the Python script and convert the given number from decimal to binary to get the flag'
     },
     {
       id: 5,
       unlocked: false,
       message: '',
       isSuccess: false,
-      longDescription: 'Nivel 5: Manejo de archivos y excepciones'
+      longDescription: 'Nivel 5: Run the Python script code.py in the same directory as codebook.txt.'
     },
     {
       id: 6,
       unlocked: false,
       message: '',
       isSuccess: false,
-      longDescription: 'Nivel 6: Conceptos avanzados de Python'
+      longDescription: 'Nivel 6: Can you get the flag?'
     }
   ];
 
