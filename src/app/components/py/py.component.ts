@@ -98,12 +98,15 @@ import * as CryptoJS from 'crypto-js'
       display: block;
       height: 100vh;
       width: 100vw;
-      position: relative;
+      position: fixed;
+      top: 0;
+      left: 0;
       background-color: #000;
+      overflow: hidden;
     }
 
     .matrix-canvas {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
@@ -113,26 +116,29 @@ import * as CryptoJS from 'crypto-js'
     }
 
     .py-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
       background-color: transparent;
-      min-height: 100%;
       display: flex;
       flex-direction: column;
       color: #ffff00;
       box-sizing: border-box;
-      position: relative;
-      z-index: 1;
     }
 
     header {
-      height: %;
+      height: 20%;
       width: 100%;
       background-color: rgba(0, 0, 0, 0.75);
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
-      margin-bottom: 20px;
       border-bottom: 1px solid rgba(255, 255, 0, 0.3);
+      flex-shrink: 0;
     }
 
     h1 {
@@ -168,9 +174,12 @@ import * as CryptoJS from 'crypto-js'
     }
 
     main {
+      position: relative;
       padding: 20px;
       flex: 1;
-      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .exercises-grid {
@@ -178,6 +187,8 @@ import * as CryptoJS from 'crypto-js'
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1.5rem;
       padding: 10px;
+      overflow-y: auto;
+      height: 100%;
     }
 
     .exercise-card {
@@ -257,13 +268,12 @@ import * as CryptoJS from 'crypto-js'
     .code-input-container {
       width: 100%;
       max-width: 500px;
-      margin: 30px auto;
+      margin: 20px auto;
       padding: 20px;
       background-color: rgba(0, 0, 0, 0.5);
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 0, 0.3);
-      position: relative;
-      z-index: 2;
+      flex-shrink: 0;
     }
 
     .code-input {
@@ -337,7 +347,7 @@ import * as CryptoJS from 'crypto-js'
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 2;
     }
 
     .modal-content {

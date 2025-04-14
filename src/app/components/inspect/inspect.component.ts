@@ -55,12 +55,19 @@ import { Router } from "@angular/router"
       background-color: #000;
       overflow: hidden;
       position: relative;
+      z-index: 1;
     }
 
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       z-index: 0;
       background-color: #000;
     }
-    /* Ten cuidado por donde inspeccionas*/
+
     header {
       display: flex;
       justify-content: center;
