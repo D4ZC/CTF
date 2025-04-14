@@ -566,12 +566,21 @@ export class PyComponent implements OnInit, AfterViewInit {
 
   downloadPyFile(card: any): void {
     if (card.unlocked) {
-      const link = document.createElement('a');
-      link.href = `assets/py/${card.id}.py`;
-      link.download = `${card.id}.py`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Download Python file
+      const pyLink = document.createElement('a');
+      pyLink.href = `assets/py/${card.id}.py`;
+      pyLink.download = `${card.id}.py`;
+      document.body.appendChild(pyLink);
+      pyLink.click();
+      document.body.removeChild(pyLink);
+
+      // Download answers file
+      const answersLink = document.createElement('a');
+      answersLink.href = `assets/py/respuestas.txt`;
+      answersLink.download = `respuestas.txt`;
+      document.body.appendChild(answersLink);
+      answersLink.click();
+      document.body.removeChild(answersLink);
     }
   }
 
