@@ -1,6 +1,6 @@
 # A number guessing game with multiple errors to fix
 import random
-number="D3l1c1a7uFf"
+number="C4rAml0Q0uE"
 def generate_secret_number()
     # Error 1: Missing colon after function definition
     return random.randint(1, 100

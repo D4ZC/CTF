@@ -12,8 +12,8 @@ export class PyService {
     level2: CryptoJS.SHA256("py7h0n_b3g1n").toString(),
     level3: CryptoJS.SHA256("Ch0c0L4tE1").toString(),
     level4: CryptoJS.SHA256("C4rAml0Q0uE").toString(),
-    level5: CryptoJS.SHA256("D3l1c1a7uFf").toString(),
-    level6: CryptoJS.SHA256("T1r4m1sU9Xx").toString(),
+    level5: CryptoJS.SHA256("T1r4m1sU9Xx").toString(),
+    level6: CryptoJS.SHA256("D3l1c1a7uFf").toString(),
     final: CryptoJS.SHA256("P4strY4F4nT").toString()
   }
 
