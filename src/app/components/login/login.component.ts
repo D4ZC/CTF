@@ -10,19 +10,24 @@ import { AuthService } from "../../services/auth.service"
   imports: [CommonModule, FormsModule],
   template: `
     <div class="login-container">
-      <!--Este es el codigo para el siguiente nivel: 4F9dH2bK1Q-->
       <canvas #binaryCanvas class="binary-rain"></canvas>
       <div class="content-wrapper">
         <header>
           <h1>In1C10-D3-SeS10n</h1>
+          <!-- "Vivo en el navegador, pero no soy visible.
+Escucho sin orejas y actúo sin pedir permiso.
+Me llaman cuando pasa algo,
+como un clic o un error imprevisto.
+¿Quién soy?" -->
         </header>
         <main>
+                  <!-- Este campo ama las citas... especialmente las simples (') -->
+
           <section class="login-form">
-          <!-- Este campo ama las citas... especialmente las simples (') -->
             <div class="form-group">
-              <!-- Nadie va a adivinar que es "admin123"... excepto todos -->
               <input 
                 type="text" 
+
                 [(ngModel)]="username" 
                 placeholder="Usuario" 
                 class="form-control"
@@ -35,14 +40,19 @@ import { AuthService } from "../../services/auth.service"
                 placeholder="Contraseña" 
                 class="form-control"
               />
-              <!-- No te preocupes, nadie va a adivinar "123456"... ¿verdad? -->
             </div>
+                  <!-- Por que validar inputs si podemos dejar que el usuario administre la base de datos? -->
+
             <button (click)="onLogin()" class="btn-submit">Ingresar</button>
             <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
           </section>
+          <!-- "Estoy presente en cada color,
+pero nadie me ve.
+Si me aumentas, todo arde;
+si me bajas, todo se va."
+¿Qué componente de un valor rgba soy? -->
         </main>
       </div>
-      <!-- ¿Por qué validar inputs si podemos dejar que el usuario administre la base de datos? -->
     </div>
   `,
   styles: [`
@@ -52,7 +62,7 @@ import { AuthService } from "../../services/auth.service"
       height: 100vh;
       width: 100vw;
     }
-
+    /*Sigue buscando*/
     .login-container {
       position: relative;
       height: 100%;
@@ -89,8 +99,8 @@ import { AuthService } from "../../services/auth.service"
       justify-content: center;
       align-items: center;
     }
-
-    h1 {
+      
+    h1 { /* Codigo nivel 1: 4F9dH2bK1Q*/
       color: white;
       margin: 0;
       font-size: 2rem;
@@ -131,6 +141,7 @@ import { AuthService } from "../../services/auth.service"
       font-family: 'Courier Prime', monospace;
       font-size: 1rem;
     }
+      /* Busca mas arriba */
 
     .form-control::placeholder {
       color: rgba(255, 255, 255, 0.7);
@@ -147,7 +158,7 @@ import { AuthService } from "../../services/auth.service"
       font-family: 'Courier Prime', monospace;
       font-size: 1rem;
       align-self: flex-end;
-    }
+    }  
 
     .error-message {
       color: #ff0000;
@@ -250,7 +261,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
       this.router.navigate(["/dir"])
     } else {
       this.errorMessage = "Credenciales incorrectas"
-      //10 intentos restantes antes de que lancemos el misil
     }
   }
 }
