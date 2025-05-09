@@ -131,3 +131,10 @@ Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](L
 <div align="center">
   <sub>Construido con ❤️ por Flag Hunters Team</sub>
 </div>
+
+---
+
+
+<div align="center">
+  <sub>Cabbits will rule the world</sub>
+</div>
